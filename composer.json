@@ -1,5 +1,6 @@
 {
     "require": {
-        "bcosca/fatfree-core": "^3.6"
+        "bcosca/fatfree-core": "^3.6",
+        "openpsa/quickform": "^3.3"
     }
 }
