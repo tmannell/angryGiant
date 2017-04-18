@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "77f2db752b08641a7196abfe81cd0f5d",
+    "content-hash": "dca5718573850cd1a35f2901033ec127",
     "packages": [
         {
             "name": "bcosca/fatfree-core",
@@ -77,6 +77,96 @@
                 "quickform"
             ],
             "time": "2014-09-06T11:08:13+00:00"
+        },
+        {
+            "name": "smarty/smarty",
+            "version": "v3.1.31",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smarty-php/smarty.git",
+                "reference": "c7d42e4a327c402897dd587871434888fde1e7a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/c7d42e4a327c402897dd587871434888fde1e7a9",
+                "reference": "c7d42e4a327c402897dd587871434888fde1e7a9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "libs/bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Monte Ohrt",
+                    "email": "monte@ohrt.com"
+                },
+                {
+                    "name": "Uwe Tews",
+                    "email": "uwe.tews@googlemail.com"
+                },
+                {
+                    "name": "Rodney Rehm",
+                    "email": "rodney.rehm@medialize.de"
+                }
+            ],
+            "description": "Smarty - the compiling PHP template engine",
+            "homepage": "http://www.smarty.net",
+            "keywords": [
+                "templating"
+            ],
+            "time": "2016-12-14T21:57:25+00:00"
+        },
+        {
+            "name": "xfra35/f3-access",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/xfra35/f3-access.git",
+                "reference": "7b62d1c0e0a881c8b2e510fee31863fc44afa7b7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/xfra35/f3-access/zipball/7b62d1c0e0a881c8b2e510fee31863fc44afa7b7",
+                "reference": "7b62d1c0e0a881c8b2e510fee31863fc44afa7b7",
+                "shasum": ""
+            },
+            "require": {
+                "bcosca/fatfree-core": "3.*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "description": "Route access control for the PHP Fat-Free Framework",
+            "homepage": "https://github.com/xfra35/f3-access",
+            "keywords": [
+                "F3",
+                "access control",
+                "fatfree",
+                "permissions"
+            ],
+            "time": "2016-02-18T14:42:16+00:00"
         }
     ],
     "packages-dev": [],

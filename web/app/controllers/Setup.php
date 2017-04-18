@@ -4,6 +4,8 @@ class Setup {
 
   protected $f3;
   protected $db;
+  protected $form;
+  protected $values;
 
   function installCheck() {
     $this->f3 = $f3 = Base::instance();
@@ -16,22 +18,51 @@ class Setup {
     $this->db = $db = new \DB\SQL($f3->get('sqliteDB'));
     $f3->set('result', $db->exec('SELECT name FROM sqlite_master WHERE type="table" AND name="users"'));
 
-    if (empty($f3->get('result')) && !isset($_POST['create'])) {
+    if (empty($f3->get('result'))) {
       $this->installSetupForm();
-    }
-    elseif (empty($f3->get('result')) && $_POST['create'] == TRUE) {
-      $this->install();
+    } else {
+      echo 'The site has already been installed.';
     }
   }
 
   function installSetupForm() {
-    $form = new HTML_QuickForm();
-    $form->addElement('text', 'admin_username', 'Admin Username:');
-    $form->addElement('password', 'admin_password', 'Admin Password:');
+    $this->form = new HTML_QuickForm('admin_user_setup', 'POST', '/install');
+    $this->form->addElement('text', 'adminUsername', 'Admin Username:');
+    $this->form->addElement('password', 'adminPassword_1', 'Admin Password:');
+    $this->form->addElement('password', 'adminPassword_2', 'Re-enter Password:');
+    $this->form->addElement('submit', 'btnSubmit', 'Submit');
 
-    $this->f3->set('form', $form);
+    $this->form->addRule('adminUsername', 'Username is required', 'required');
+    $this->form->addRule('adminPassword_1', 'Please enter a password', 'required');
+    $this->form->addRule('adminPassword_2', 'Please re-enter your password', 'required');
 
-    echo \Template::instance()->render('installSetupForm.htm');
+    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this);
+    $this->form->addRule('adminPassword_1', 'Passwords do not match!', 'match_field', 'adminPassword_2');
+
+
+    if ($this->form->validate()) {
+      $this->values = $_POST;
+      $this->install();
+      echo 'Success!';
+    }
+    else {
+      $renderer = new HTML_QuickForm_Renderer_Tableless();
+      $this->form->accept($renderer);
+
+      $smarty = new Smarty();
+      $smarty->assign('adminForm', $renderer->toHtml());
+      $smarty->display($this->f3->get('templates') . 'installSetupForm.tpl');
+    }
+  }
+
+  function validate_match_field($originalFieldValue, $compareFieldKey) {
+
+    if ($originalFieldValue == $this->form->getElementValue($compareFieldKey)) {
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 
   function install() {
@@ -42,7 +73,7 @@ class Setup {
     $db->exec(
       "CREATE TABLE IF NOT EXISTS users (
           id       INTEGER PRIMARY KEY AUTOINCREMENT,
-          username TEXT NOT NULL,
+          username TEXT NOT NULL UNIQUE,
           password TEXT NOT NULL)");
     // Create pictures table.
     $db->exec(
@@ -86,5 +117,15 @@ class Setup {
             ON DELETE CASCADE 
             ON UPDATE CASCADE)");
     $db->commit();
+    // Insert Admin info;
+    $userManagement = new UserManagement;
+    $db->exec(
+      "INSERT INTO users (username, password) VALUES (?, ?)",
+      array(
+        1 => $this->values['adminUsername'],
+        2 => $userManagement->cryptPassword($this->values['adminPassword_1']),
+      )
+    );
   }
 }
+

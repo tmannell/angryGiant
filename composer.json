@@ -1,6 +1,8 @@
 {
     "require": {
         "bcosca/fatfree-core": "^3.6",
-        "openpsa/quickform": "^3.3"
+        "openpsa/quickform": "^3.3",
+        "smarty/smarty": "~3.1",
+        "xfra35/f3-access": "^1.0"
     }
 }
