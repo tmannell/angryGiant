@@ -40,7 +40,6 @@ Class UserManagement extends Controller {
         $this->validate_user($this->formValues['username'], $this->formValues['password'])
       );
       if ($passed == true) {
-        $this->f3->set('session', new \DB\SQL\Session($this->db, 'sessions', true));
         $this->f3->set('SESSION.uid', $user->id);
         $this->f3->reroute('/user/' . $user->id . '/view');
       }
