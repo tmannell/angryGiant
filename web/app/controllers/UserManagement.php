@@ -7,22 +7,26 @@ Class UserManagement extends Controller {
 
   /**
    * @var
+   *  Stores submitted form data.
    */
   private $formValues;
   /**
    * @var
+   *  Stores HTML_QuickForm Obj.
    */
   private $form;
 
   /**
    * UserManagement constructor.
+   *
+   * Inherits constructor from Controller class.
    */
   function __construct() {
     parent::__construct();
   }
 
   /**
-   *
+   * Admin login form.
    */
   function login() {
 
@@ -114,35 +118,43 @@ Class UserManagement extends Controller {
   }
 
   /**
-   *
+   * Create new user form.
    */
   function addUser() {
+    // Build form.
     $this->form = new HTML_QuickForm('add_user', 'POST', '/user/add');
     $this->form->addElement('text', 'username', 'Username:');
     $this->form->addElement('password', 'password_1', 'Password:');
     $this->form->addElement('password', 'password_2', 'Re-enter Password:');
     $this->form->addElement('submit', 'btnSubmit', 'Submit');
 
+    // Add validation - all fields below are required.
     $this->form->addRule('username', 'Username is required', 'required');
     $this->form->addRule('password_1', 'Please enter a password', 'required');
     $this->form->addRule('password_2', 'Please re-enter your password', 'required');
 
+    // Custom validation, make sure username doesn't already exist.
     $this->form->registerRule('username_check', 'function', 'validate_username', $this);
     $this->form->addRule('username', 'Username already exists', 'username_check');
 
+    // Custom validation, make sure the passwords match.
     $this->form->registerRule('match_field', 'function', 'validate_match_field', $this);
     $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', 'password_2');
 
+    // Process submitted form.
     if ($this->form->validate()) {
       $this->formValues = $_POST;
+      // Create new user obj with submitted form values.
       $user = new User();
       $user->username = $this->formValues['username'];
+      // Encrypt password for security.
       $user->password = $this->cryptPassword($this->formValues['password_1']);
       $user->save();
-
-      $user->load(["username=?", $this->formValues['username']]);
+      // Load the user id and redirect that user page.
+      $user->load(["username = ?", $this->formValues['username']]);
       $this->f3->reroute('/user/' . $user->id . '/view');
     }
+    // If the form hasn't been submitted display the form/template.
     else {
       $renderer = new HTML_QuickForm_Renderer_Tableless();
       $this->form->accept($renderer);
