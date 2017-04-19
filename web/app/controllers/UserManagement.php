@@ -43,7 +43,7 @@ Class UserManagement extends Controller {
     $this->form = new HTML_QuickForm('user_login', 'POST', '/user');
     $this->form->addElement('text', 'username', 'Username:');
     $this->form->addElement('password', 'password', 'Password:');
-    $this->form->addElement('submit', 'btnSubmit', 'Submit');
+    $this->form->addElement('submit', 'btnSubmit', 'Login');
 
     // Make username and pw required.
     $this->form->addRule('username', 'Username is required', 'required');
@@ -103,7 +103,7 @@ Class UserManagement extends Controller {
     $this->form->addElement('text', 'username', 'Username:');
     $this->form->addElement('password', 'password_1', 'Password:');
     $this->form->addElement('password', 'password_2', 'Re-enter Password:');
-    $this->form->addElement('submit', 'btnSubmit', 'Submit');
+    $this->form->addElement('submit', 'btnSubmit', 'Add User');
 
     // Add validation - all fields below are required.
     $this->form->addRule('username', 'Username is required', 'required');
@@ -190,8 +190,8 @@ Class UserManagement extends Controller {
     // Build form.
     $this->form = new HTML_QuickForm('delete_user', 'POST', $this->f3->get('PATH'));
     $this->form->addElement('hidden', 'current_user', $args[2]);
-    $this->form->addElement('submit', 'btnSubmit', 'Submit');
-    $this->form->addElement('button','Cancel','Cancel Deletion','onClick="window.location.href = \'/user\'"');
+    $this->form->addElement('submit', 'btnSubmit', 'Delete');
+    $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/user\'"');
 
     // Add custom rule, make sure we aren't deleting user id 1 - super user.
     $this->form->registerRule('check_admin_user', 'function', 'validate_user_deletion', $this);
