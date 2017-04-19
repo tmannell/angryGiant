@@ -303,6 +303,8 @@ Class UserManagement extends Controller {
    * @param $username
    * @param $password
    * @return bool
+   *
+   * ToDO: ignore case on username select
    */
   function authenticate_user($username, $password) {
     $db = $this->db;
