@@ -27,6 +27,9 @@ Class UserManagement extends Controller {
 
   /**
    * Admin login form.
+   *
+   * Upon successful login adds session var (user id). We are using this var
+   * to authorize users.
    */
   function login() {
 
@@ -50,8 +53,7 @@ Class UserManagement extends Controller {
     $this->form->registerRule('check_password', 'function', 'validate_password', $this);
     $this->form->addRule('password', 'Password is incorrect!', 'check_password', 'username');
 
-    // If this passes then the form has been submitted and everything
-    // has passed validation. Let's process the form.
+    // If validation passes then the form has been submitted. Let's process the form values.
     if ($this->form->validate()) {
       // Put the posted values in a class var.
       $this->formValues = $_POST;
@@ -64,41 +66,16 @@ Class UserManagement extends Controller {
       $this->f3->reroute('/user/' . $user->id . '/view');
     }
     else {
-      // Call renderer class to render forms
+      // Create new render obj to render forms
       $renderer = new HTML_QuickForm_Renderer_Tableless();
       // The form must accept the renderer to convert it to html
       $this->form->accept($renderer);
 
-      // Create a new smarty template
-      $smarty = new Smarty();
       // Assign vars to template
-      $smarty->assign('loginForm', $renderer->toHtml());
+      $this->assign('form', $renderer->toHtml());
       // And display it.
-      $smarty->display($this->f3->get('templates') . 'loginForm.tpl');
+      $this->display('Form.tpl');
     }
-  }
-
-  /**
-   * Validation function
-   *  Validates the password by comparing form submitted data with
-   *  user info in the database.
-   *
-   * @param $password
-   *  User submitted password.
-   * @param $usernameFieldKey
-   *  Username form name, used to get actual submitted value.
-   * @return bool
-   */
-  function validate_password($password, $usernameFieldKey) {
-     // Get the submitted username
-     $username = $this->form->getElementValue($usernameFieldKey);
-     // Pass username and password to our custom auth function.
-     if ($this->authenticate_user($username, $password)) {
-       return true;
-     }
-     else {
-       return false;
-     }
   }
 
   /**
@@ -109,12 +86,12 @@ Class UserManagement extends Controller {
    */
   function viewUser() {
     $user = new User;
-    $args = explode('/', this->f3->get('PATH'));
+    $args = explode('/', $this->f3->get('PATH'));
     $user->load(['id = ?', $args[2]]);
 
-    $smarty = new Smarty();
-    $smarty->assign('username', $user->username);
-    $smarty->display($this->f3->get('templates') . 'viewUser.tpl');
+
+    $this->assign('username', $user->username);
+    $this->display('View.tpl');
   }
 
   /**
@@ -159,14 +136,164 @@ Class UserManagement extends Controller {
       $renderer = new HTML_QuickForm_Renderer_Tableless();
       $this->form->accept($renderer);
 
-      $smarty = new Smarty();
-      $smarty->assign('addUserForm', $renderer->toHtml());
-      $smarty->display($this->f3->get('templates') . 'addUserForm.tpl');
+      $this->assign('form', $renderer->toHtml());
+      $this->display('Form.tpl');
     }
   }
 
   /**
+   * Edit user form.
+   */
+  function editUser() {
+    // Build form.
+    $this->form = new HTML_QuickForm('edit_user', 'POST', $this->f3->get('PATH'));
+    $this->form->addElement('password', 'password_1', 'New Password:');
+    $this->form->addElement('password', 'password_2', 'Re-enter Password:');
+    $this->form->addElement('submit', 'btnSubmit', 'Save');
+
+    // Make password 1 and 2 required.
+    $this->form->addRule('password_1', 'Please enter a new password', 'required');
+    $this->form->addRule('password_2', 'Please re-enter password', 'required');
+
+    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this);
+    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', 'password_2');
+
+    if ($this->form->validate()) {
+      $this->formValues = $_POST;
+      $user = new User();
+      $url = $this->f3->get('PATH');
+      $args = explode('/', $url);
+      $user->load(['id = ?', $args[2]]);
+      $user->password = $this->cryptPassword($this->formValues['password_1']);
+      $user->save();
+
+      // Set success message in session var
+      Helper::set_message('Password successfully updated', 'success');
+      // Reroute to user view page.
+      $this->f3->reroute('/user/' . $args[2] . '/view');
+    }
+
+    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $this->form->accept($renderer);
+
+    $this->assign('form', $renderer->toHtml());
+    $this->display('Form.tpl');
+  }
+
+  /**
+   * Deletes user form.
+   *   Removes user from database.
+   */
+  function deleteUser() {
+    // Explode url into an array.
+    $args = explode('/', $this->f3->get('PATH'));
+    // Build form.
+    $this->form = new HTML_QuickForm('delete_user', 'POST', $this->f3->get('PATH'));
+    $this->form->addElement('hidden', 'current_user', $args[2]);
+    $this->form->addElement('submit', 'btnSubmit', 'Submit');
+    $this->form->addElement('button','Cancel','Cancel Deletion','onClick="window.location.href = \'/user\'"');
+
+    // Add custom rule, make sure we aren't deleting user id 1 - super user.
+    $this->form->registerRule('check_admin_user', 'function', 'validate_user_deletion', $this);
+    $this->form->addRule('current_user', 'Cannot delete admin user.', 'check_admin_user');
+
+    // Process submission.
+    if ($this->form->validate()) {
+      $this->formValues = $_POST;
+      $user = new User();
+      // Delete user
+      $user->erase(['id = ?', $args[2]]);
+      // Success message
+      Helper::set_message('User has been successfully deleted', 'success');
+      // Reroute to user page.
+      $this->f3->reroute('/user');
+    }
+
+    // Display form.
+    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $this->form->accept($renderer);
+
+    $this->assign('form', $renderer->toHtml());
+    $this->display('Form.tpl');
+  }
+
+  /**
+   * Logs user out by clearing uid in session var.
+   */
+  function logout() {
+    $this->f3->clear('SESSION.uid');
+    $this->f3->reroute('/');
+  }
+
+  /**
+   * Uses PHP crypt to encrypt password using BlowFish
+   *
+   * @param $input
+   *  Input from password submission form.
+   * @param int $cost
+   *  Rounds of encryption
+   * @return string
+   *  returns the password hash for storage in database.
+   */
+  function cryptPassword($input, $cost = 7) {
+    $salt = "";
+    $salt_chars = array_merge(range('A','Z'), range('a','z'), range(0,9));
+    for($i=0; $i < 22; $i++) {
+      $salt .= $salt_chars[array_rand($salt_chars)];
+    }
+    return crypt($input, sprintf('$2a$%02d$', $cost) . $salt);
+  }
+
+  /**
+   * Authenticates user passwords, compares them to the hash in the database.
+   *
+   * @param $username
+   *  Username retrieved from form
+   * @param $password
+   *  Password retrieved from form.
+   * @return bool
+   *  returns password hash if correct otherwise returns false.
+   *
+   */
+  function authenticate_user($username, $password) {
+    $db = $this->db;
+    $result = $db->exec('SELECT * FROM users WHERE username = ?', [1 => $username]);
+    if(crypt($password, $result[0]['password']) == $result[0]['password']) {
+      return $result[0]['password'];
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Validation function
+   *  Validates the password by comparing form submitted data with
+   *  user info in the database.
+   *
+   * @param $password
+   *  User submitted password.
+   * @param $usernameFieldKey
+   *  Username form name, used to get actual submitted value.
+   * @return bool
+   */
+  function validate_password($password, $usernameFieldKey) {
+    // Get the submitted username
+    $username = $this->form->getElementValue($usernameFieldKey);
+    // Pass username and password to our custom auth function.
+    if ($this->authenticate_user($username, $password)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * Validation function
+   *  Makes sure username does not already exist.
+   *
    * @param $value
+   *
    * @return bool
    */
   function validate_username($value) {
@@ -182,8 +309,14 @@ Class UserManagement extends Controller {
   }
 
   /**
+   * Validation function
+   *  When editing or creating a password makes sure both passwords entered
+   *  match.
+   *
    * @param $originalFieldValue
+   *  Value from first password field
    * @param $compareFieldKey
+   *  Key for second password field so we can look up value.
    * @return bool
    */
   function validate_match_field($originalFieldValue, $compareFieldKey) {
@@ -197,122 +330,19 @@ Class UserManagement extends Controller {
   }
 
   /**
+   * Validation function
+   *  Makes sure super user is not being deleted.
    *
-   */
-  function editUser() {
-    $this->form = new HTML_QuickForm('edit_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('password', 'password_1', 'New Password:');
-    $this->form->addElement('password', 'password_2', 'Re-enter Password:');
-    $this->form->addElement('submit', 'btnSubmit', 'Submit');
-
-    $this->form->addRule('password_1', 'Please enter a new password', 'required');
-    $this->form->addRule('password_2', 'Please re-enter password', 'required');
-
-    // todo: clear passwords fields after save
-
-    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this);
-    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', 'password_2');
-
-
-    $smarty = new Smarty();
-
-    if ($this->form->validate()) {
-      $this->formValues = $_POST;
-      $user = new User();
-      $url = $this->f3->get('PATH');
-      $args = explode('/', $url);
-      $user->load(['id = ?', $args[2]]);
-      $user->password = $this->cryptPassword($this->formValues['password_1']);
-      $user->save();
-
-      $smarty->assign('successMsg', true);
-    }
-
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
-    $this->form->accept($renderer);
-
-    $smarty->assign('editUserForm', $renderer->toHtml());
-    $smarty->display($this->f3->get('templates') . 'editUserForm.tpl');
-  }
-
-  /**
-   *
-   */
-  function deleteUser() {
-
-    $args = explode('/', $this->f3->get('PATH'));
-    $this->form = new HTML_QuickForm('delete_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('hidden', 'current_user', $args[2]);
-    $this->form->addElement('submit', 'btnSubmit', 'Submit');
-    $this->form->addElement('button','Cancel','Cancel Deletion','onClick="window.location.href = \'/user\'"');
-
-    $this->form->registerRule('check_admin_user', 'function', 'validate_user_deletion', $this);
-    $this->form->addRule('current_user', 'Cannot delete admin user.', 'check_admin_user');
-
-    if ($this->form->validate()) {
-      $this->formValues = $_POST;
-      $user = new User();
-      $user->erase(['id = ?', $args[2]]);
-      $this->f3->reroute('/');
-    }
-
-    $smarty = new Smarty;
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
-    $this->form->accept($renderer);
-
-    $smarty->assign('deleteUserForm', $renderer->toHtml());
-    $smarty->display($this->f3->get('templates') . 'deleteUserForm.tpl');
-  }
-
-  /**
-   * @param $value
+   * @param $uid
+   *  User id of user being deleted
    * @return bool
    */
-  function validate_user_deletion($value) {
-    if ($value == 1) {
+  function validate_user_deletion($uid) {
+    if ($uid == 1) {
       return false;
     }
     else {
       return true;
-    }
-  }
-
-  /**
-   *
-   */
-  function logout() {
-    $this->f3->clear('SESSION.uid');
-    $this->f3->reroute('/');
-  }
-
-  /**
-   * @param $input
-   * @param int $cost
-   * @return string
-   */
-  function cryptPassword($input, $cost = 7) {
-    $salt = "";
-    $salt_chars = array_merge(range('A','Z'), range('a','z'), range(0,9));
-    for($i=0; $i < 22; $i++) {
-      $salt .= $salt_chars[array_rand($salt_chars)];
-    }
-    return crypt($input, sprintf('$2a$%02d$', $cost) . $salt);
-  }
-
-  /**
-   * @param $username
-   * @param $password
-   * @return bool
-   *
-   * ToDO: ignore case on username select
-   */
-  function authenticate_user($username, $password) {
-    $db = $this->db;
-    $result = $db->exec('SELECT * FROM users WHERE username = ?', [1 => $username]);
-    if(crypt($password, $result[0]['password']) == $result[0]['password']) {
-      return $result[0]['password'];
-    } else {
-      return false;
     }
   }
 }
