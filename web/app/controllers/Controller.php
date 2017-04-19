@@ -28,7 +28,19 @@ class Controller {
     }
   }
 
-  static function checkAuthorization() {
+  public function startSession() {
+    $result = $this->db->exec('SELECT name FROM sqlite_master WHERE type="table" AND name="users"');
+    if (!empty($result)) {
+      $db = new \DB\SQL($this->f3->get('sqliteDB'));
+      new \DB\SQL\Session($db, 'sessions', TRUE);
+    }
+    elseif (empty($result) && $this->f3->get('PATH') != '/install') {
+      $this->f3->reroute('/install');
+    }
+
+  }
+
+  public function checkAuthorization() {
 
     $access = Access::instance();
     $uid = \Base::instance()->get('SESSION.uid');

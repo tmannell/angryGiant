@@ -5,20 +5,16 @@ class Setup {
   protected $f3;
   protected $db;
   protected $form;
-  protected $values;
+  protected $formValues;
+
+  function __construct() {
+    $this->f3 = Base::instance();
+    $this->db = new \DB\SQL($this->f3->get('sqliteDB'));
+  }
 
   function installCheck() {
-    $this->f3 = $f3 = Base::instance();
-    $db_path = preg_replace('/sqlite\:/', '', $f3->get('sqliteDB'));
-    if (!file_exists($db_path)) {
-      echo 'Please create sqlite database before running install script.';
-      return;
-    }
-
-    $this->db = $db = new \DB\SQL($f3->get('sqliteDB'));
-    $f3->set('result', $db->exec('SELECT name FROM sqlite_master WHERE type="table" AND name="users"'));
-
-    if (empty($f3->get('result'))) {
+    $result = $this->db->exec('SELECT name FROM sqlite_master WHERE type="table" AND name="users"');
+    if (empty($result)) {
       $this->installSetupForm();
     } else {
       echo 'The site has already been installed.';
@@ -41,9 +37,10 @@ class Setup {
 
 
     if ($this->form->validate()) {
-      $this->values = $_POST;
-      $this->install();
-      echo 'Success!';
+      $this->formValues = $_POST;
+      $this->createDatabase();
+      $this->insertAdminUser();
+      $this->f3->reroute('/');
     }
     else {
       $renderer = new HTML_QuickForm_Renderer_Tableless();
@@ -65,7 +62,7 @@ class Setup {
     }
   }
 
-  function install() {
+  function createDatabase() {
     $db = $this->db;
 
     $db->begin();
@@ -117,14 +114,18 @@ class Setup {
             ON DELETE CASCADE 
             ON UPDATE CASCADE)");
     $db->commit();
+  }
+
+  function insertAdminUser() {
     // Insert Admin info;
     $userManagement = new UserManagement;
-    $db->exec(
+    $this->db = new \DB\SQL($this->f3->get('sqliteDB'));
+    $result = $this->db->exec(
       "INSERT INTO users (username, password) VALUES (?, ?)",
-      array(
-        1 => $this->values['adminUsername'],
+      [
+        1 => $this->formValues['adminUsername'],
         2 => $userManagement->cryptPassword($this->values['adminPassword_1']),
-      )
+      ]
     );
   }
 }
