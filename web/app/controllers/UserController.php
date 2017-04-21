@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class UserManagement
+ * Class UserController
  */
-Class UserManagement extends Controller {
+Class UserController extends Controller {
 
   /**
    * @var
@@ -16,13 +16,18 @@ Class UserManagement extends Controller {
    */
   private $form;
 
+  private $uid;
+
   /**
-   * UserManagement constructor.
+   * UserController constructor.
    *
    * Inherits constructor from Controller class.
    */
   function __construct() {
     parent::__construct();
+
+    // Get user id out of url.
+    $this->uid = Helper::explodePath(2);
   }
 
   /**
@@ -86,8 +91,7 @@ Class UserManagement extends Controller {
    */
   function viewUser() {
     $user = new User;
-    $args = explode('/', $this->f3->get('PATH'));
-    $user->load(['id = ?', $args[2]]);
+    $user->load(['id = ?', $this->uid]);
 
 
     $this->assign('username', $user->username);
@@ -161,16 +165,14 @@ Class UserManagement extends Controller {
     if ($this->form->validate()) {
       $this->formValues = $_POST;
       $user = new User();
-      $url = $this->f3->get('PATH');
-      $args = explode('/', $url);
-      $user->load(['id = ?', $args[2]]);
+      $user->load(['id = ?', $this->uid]);
       $user->password = $this->cryptPassword($this->formValues['password_1']);
       $user->save();
 
       // Set success message in session var
-      Helper::set_message('Password successfully updated', 'success');
+      Helper::setMessage('Password successfully updated', 'success');
       // Reroute to user view page.
-      $this->f3->reroute('/user/' . $args[2] . '/view');
+      $this->f3->reroute('/user/' . $this->uid . '/view');
     }
 
     $renderer = new HTML_QuickForm_Renderer_Tableless();
@@ -185,11 +187,9 @@ Class UserManagement extends Controller {
    *   Removes user from database.
    */
   function deleteUser() {
-    // Explode url into an array.
-    $args = explode('/', $this->f3->get('PATH'));
     // Build form.
     $this->form = new HTML_QuickForm('delete_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('hidden', 'current_user', $args[2]);
+    $this->form->addElement('hidden', 'current_user', $this->uid);
     $this->form->addElement('submit', 'btnSubmit', 'Delete');
     $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/user\'"');
 
@@ -202,9 +202,9 @@ Class UserManagement extends Controller {
       $this->formValues = $_POST;
       $user = new User();
       // Delete user
-      $user->erase(['id = ?', $args[2]]);
+      $user->erase(['id = ?', $this->uid]);
       // Success message
-      Helper::set_message('User has been successfully deleted', 'success');
+      Helper::setMessage('User has been successfully deleted', 'success');
       // Reroute to user page.
       $this->f3->reroute('/user');
     }

@@ -175,13 +175,13 @@ class Setup extends Controller {
    */
   function insertAdminUser() {
     // Insert Admin info;
-    $userManagement = new UserManagement;
+    $userController = new UserController;
     $this->db = new \DB\SQL($this->f3->get('sqliteDB'));
     $this->db->exec(
       "INSERT INTO users (username, password) VALUES (?, ?)",
       [
         1 => $this->formValues['adminUsername'],
-        2 => $userManagement->cryptPassword($this->formValues['adminPassword_1']),
+        2 => $userController->cryptPassword($this->formValues['adminPassword_1']),
       ]
     );
   }
