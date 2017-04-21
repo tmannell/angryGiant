@@ -7,6 +7,7 @@ vendor
 *.idea
 
 #Angry Giant config files#
+##########################
 config.ini
 
 # Compiled source #
