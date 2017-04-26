@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "dca5718573850cd1a35f2901033ec127",
+    "content-hash": "446313f9073e494409d0303999b1d912",
     "packages": [
         {
             "name": "bcosca/fatfree-core",
@@ -36,6 +36,53 @@
             "description": "A powerful yet easy-to-use PHP micro-framework designed to help you build dynamic and robust Web applications - fast!",
             "homepage": "http://fatfreeframework.com/",
             "time": "2017-04-02T09:44:00+00:00"
+        },
+        {
+            "name": "eventviva/php-image-resize",
+            "version": "1.6.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eventviva/php-image-resize.git",
+                "reference": "7c51c8448a2b23a4d416c86a3f7c2fe1bea14945"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eventviva/php-image-resize/zipball/7c51c8448a2b23a4d416c86a3f7c2fe1bea14945",
+                "reference": "7c51c8448a2b23a4d416c86a3f7c2fe1bea14945",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gd": "*",
+                "php": ">=5.3.0"
+            },
+            "suggest": {
+                "ext-exif": "Auto-rotate jpeg files"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aditya Patadia",
+                    "homepage": "http://aditya.patadia.org/"
+                }
+            ],
+            "description": "PHP class to re-size and scale images",
+            "homepage": "https://github.com/eventviva/php-image-resize",
+            "keywords": [
+                "image",
+                "php",
+                "resize",
+                "scale"
+            ],
+            "time": "2017-04-20T15:28:31+00:00"
         },
         {
             "name": "openpsa/quickform",
@@ -77,6 +124,38 @@
                 "quickform"
             ],
             "time": "2014-09-06T11:08:13+00:00"
+        },
+        {
+            "name": "rhubarbphp/pikaday",
+            "version": "1.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/RhubarbPHP/Pikaday.git",
+                "reference": "a940d308b9001629f1e5c7207a37fd060042fee3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/RhubarbPHP/Pikaday/zipball/a940d308b9001629f1e5c7207a37fd060042fee3",
+                "reference": "a940d308b9001629f1e5c7207a37fd060042fee3",
+                "shasum": ""
+            },
+            "suggest": {
+                "moment/moment": "Allows custom formatting of Pikaday dates"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD",
+                "MIT"
+            ],
+            "description": "A refreshing JavaScript Datepicker — lightweight, no dependencies, modular CSS",
+            "homepage": "http://dbushell.github.io/Pikaday/",
+            "keywords": [
+                "calendar",
+                "date",
+                "datepicker"
+            ],
+            "time": "2016-11-04T16:38:24+00:00"
         },
         {
             "name": "smarty/smarty",
