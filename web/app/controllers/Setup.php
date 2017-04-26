@@ -129,9 +129,9 @@ class Setup extends Controller {
     // Create pictures table.
     $db->exec(
       "CREATE TABLE IF NOT EXISTS pictures (
-          id   INTEGER PRIMARY KEY AUTOINCREMENT,
-          path TEXT NOT NULL)");
-    $db->exec("CREATE INDEX picture_path_idx ON pictures (PATH)");
+          id       INTEGER PRIMARY KEY AUTOINCREMENT,
+          filename TEXT NOT NULL UNIQUE)");
+    $db->exec("CREATE INDEX picture_filename_idx ON pictures (FILENAME)");
     // Create stories table.
     $db->exec(
       "CREATE TABLE IF NOT EXISTS stories (
@@ -139,6 +139,7 @@ class Setup extends Controller {
           title      TEXT NOT NULL,
           created_by INTEGER NOT NULL,
           picture_id INTEGER NOT NULL,
+          post_date  TEXT,
           CONSTRAINT FK_story_user_id
             FOREIGN KEY (created_by)
             REFERENCES users (id)
