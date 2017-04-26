@@ -33,4 +33,28 @@ Class Helper extends Controller {
 
     return $args;
   }
+
+  static function resizeAndSaveImage($file) {
+    $f3 = \Base::instance();
+    while (true) {
+      $patterns = array('/\.[^.jpg]/', '/\s/');
+      $replacements = array('', '_');
+      $filename = preg_replace($patterns, $replacements, uniqid('', true) . $file['name']);
+
+      if (!file_exists($f3->get('webroot') . 'pictures/original/' . $filename)) {
+        break;
+      }
+    }
+
+    $picture = new \Eventviva\ImageResize($file['path']);
+    $picture->save($f3->get('webroot') . 'pictures/original/' . $filename);
+    $picture->resizeToWidth($f3->get('imgLarge'));
+    $picture->save($f3->get('webroot') . 'pictures/large/' . $filename);
+    $picture->resizeToWidth($f3->get('imgMedium'));
+    $picture->save($f3->get('webroot') . 'pictures/medium/' . $filename);
+    $picture->resizeToWidth($f3->get('imgThumbnail'));
+    $picture->save($f3->get('webroot') . 'pictures/thumbnail/' . $filename);
+
+    return $filename;
+  }
 }
