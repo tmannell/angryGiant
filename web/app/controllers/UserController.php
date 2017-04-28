@@ -41,7 +41,7 @@ Class UserController extends Controller {
     // Reroute user to view user page is they are already logged in.
     $authStatus = $this->getAuthorizationStatus();
     if ($authStatus == 'authorized' || $authStatus == 'admin' ) {
-      $this->f3->reroute('/user/' . $this->f3->get('SESSION.uid') . '/view');
+      $this->f3->reroute('/user/' . $this->f3->get('SESSION.uid'));
     }
 
     // Build Login form
@@ -68,7 +68,7 @@ Class UserController extends Controller {
       // Set user id in session var
       $this->f3->set('SESSION.uid', $user->id);
       // and redirect user to their user page.
-      $this->f3->reroute('/user/' . $user->id . '/view');
+      $this->f3->reroute('/user/' . $user->id);
     }
     else {
       // Create new render obj to render forms
@@ -133,7 +133,7 @@ Class UserController extends Controller {
       $user->save();
       // Load the user id and redirect that user page.
       $user->load(["username = ?", $this->formValues['username']]);
-      $this->f3->reroute('/user/' . $user->id . '/view');
+      $this->f3->reroute('/user/' . $user->id);
     }
     // If the form hasn't been submitted display the form/template.
     else {
@@ -172,7 +172,7 @@ Class UserController extends Controller {
       // Set success message in session var
       Helper::setMessage('Password successfully updated', 'success');
       // Reroute to user view page.
-      $this->f3->reroute('/user/' . $this->uid . '/view');
+      $this->f3->reroute('/user/' . $this->uid);
     }
 
     $renderer = new HTML_QuickForm_Renderer_Tableless();
