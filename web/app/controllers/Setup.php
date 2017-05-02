@@ -132,16 +132,16 @@ class Setup extends Controller {
           id       INTEGER PRIMARY KEY AUTOINCREMENT,
           filename TEXT NOT NULL UNIQUE)");
     $db->exec("CREATE INDEX picture_filename_idx ON pictures (FILENAME)");
-    // TODO: add a publish boolean field
     // Create stories table.
     $db->exec(
       "CREATE TABLE IF NOT EXISTS stories (
-          id         INTEGER PRIMARY KEY AUTOINCREMENT,
-          title      TEXT NOT NULL,
-          picture_id INTEGER NOT NULL,
-          post_date  TEXT,
-          created_by INTEGER NOT NULL,
-          published  INTEGER NOT NULL,
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          title       TEXT NOT NULL,
+          short_title TEXT NOT NULL UNIQUE COLLATE NOCASE,
+          picture_id  INTEGER NOT NULL,
+          post_date   TEXT,
+          created_by  INTEGER NOT NULL,
+          published   INTEGER NOT NULL,
           CONSTRAINT FK_story_user_id
             FOREIGN KEY (created_by)
             REFERENCES users (id)
@@ -159,7 +159,10 @@ class Setup extends Controller {
           description TEXT NULL,
           picture_id  INTEGER NOT NULL,
           story_id    INTEGER NULL,
+          page_number INTEGER NULL, 
+          post_date   TEXT,
           created_by  INTEGER NOT NULL,
+          published   INTEGER NOT NULL,
           CONSTRAINT FK_page_user_id
             FOREIGN KEY (created_by)
             REFERENCES users (id)
