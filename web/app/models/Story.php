@@ -8,4 +8,8 @@ class Story extends \DB\SQL\Mapper {
     parent::__construct( \Base::instance()->get('DB'), 'stories');
   }
 
+  public function listByTitle() {
+    return $this->select('id, title', null, array('order' => 'title ASC'));
+  }
+
 }
