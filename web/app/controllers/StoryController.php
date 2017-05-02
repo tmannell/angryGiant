@@ -20,7 +20,7 @@ Class StoryController extends Controller {
 
   function addStory() {
 
-    $this->storyAddEditForm('add');
+    $this->storyForm('add');
 
     if ($this->form->validate()) {
       // Put the posted values in a class vars.
@@ -59,7 +59,7 @@ Class StoryController extends Controller {
   // TODO: add thumbnail to edit page.
   function editStory() {
 
-    $this->storyAddEditForm('edit');
+    $this->storyForm('edit');
 
     $story = new Story();
     $story->load(['id = ?', $this->sid]);
@@ -106,7 +106,29 @@ Class StoryController extends Controller {
   }
 
   function deleteStory() {
+    // Build form.
+    $this->form = new HTML_QuickForm('deleteStory', 'POST', $this->f3->get('PATH'));
+    $this->form->addElement('submit', 'btnSubmit', 'Delete');
+    $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/stories\'"');
 
+    // Process submission.
+    if ($this->form->validate()) {
+      $this->formValues = $_POST;
+      $user = new Story();
+      // Delete user
+      $user->erase(['id = ?', $this->sid]);
+      // Success message
+      Helper::setMessage('Story has been successfully deleted', 'success');
+      // Reroute to user page.
+      $this->f3->reroute('/stories');
+    }
+
+    // Display form.
+    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $this->form->accept($renderer);
+
+    $this->assign('form', $renderer->toHtml());
+    $this->display('Form.tpl');
   }
 
   function storyAddEditForm($op) {
@@ -141,6 +163,7 @@ Class StoryController extends Controller {
     $this->form->addRule('titlePage', 'Picture file type not supported', 'pictureMimeType');
   }
 
+  // TODO: create validation class if possible.
   function validatePictureDimensions($values) {
     $image_info = getimagesize($values['tmp_name']);
     $image_width  = $image_info[0];
