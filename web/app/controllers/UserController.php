@@ -15,7 +15,7 @@ Class UserController extends Controller {
    *  Stores HTML_QuickForm Obj.
    */
   private $form;
-
+  private $validation;
   private $uid;
 
   /**
@@ -26,6 +26,7 @@ Class UserController extends Controller {
   function __construct() {
     parent::__construct();
 
+    $this->validation = new Validation();
     // Get user id out of url.
     $this->uid = Helper::explodePath(2);
   }
@@ -115,12 +116,12 @@ Class UserController extends Controller {
     $this->form->addRule('password_2', 'Please re-enter your password', 'required');
 
     // Custom validation, make sure username doesn't already exist.
-    $this->form->registerRule('username_check', 'function', 'validate_username', $this);
+    $this->form->registerRule('username_check', 'function', 'validate_username', $this->validation);
     $this->form->addRule('username', 'Username already exists', 'username_check');
 
     // Custom validation, make sure the passwords match.
-    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this);
-    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', 'password_2');
+    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this->validation);
+    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', $_POST['password_2']);
 
     // Process submitted form.
     if ($this->form->validate()) {
@@ -159,8 +160,8 @@ Class UserController extends Controller {
     $this->form->addRule('password_1', 'Please enter a new password', 'required');
     $this->form->addRule('password_2', 'Please re-enter password', 'required');
 
-    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this);
-    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', 'password_2');
+    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this->validation);
+    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', $_POST['password_2']);
 
     if ($this->form->validate()) {
       $this->formValues = $_POST;
@@ -194,7 +195,7 @@ Class UserController extends Controller {
     $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/user\'"');
 
     // Add custom rule, make sure we aren't deleting user id 1 - super user.
-    $this->form->registerRule('check_admin_user', 'function', 'validate_user_deletion', $this);
+    $this->form->registerRule('check_admin_user', 'function', 'validate_user_deletion', $this->validation);
     $this->form->addRule('current_user', 'Cannot delete admin user.', 'check_admin_user');
 
     // Process submission.
@@ -262,87 +263,6 @@ Class UserController extends Controller {
       return $result[0]['password'];
     } else {
       return false;
-    }
-  }
-
-  /**
-   * Validation function
-   *  Validates the password by comparing form submitted data with
-   *  user info in the database.
-   *
-   * @param $password
-   *  User submitted password.
-   * @param $usernameFieldKey
-   *  Username form name, used to get actual submitted value.
-   * @return bool
-   */
-  function validate_password($password, $usernameFieldKey) {
-    // Get the submitted username
-    $username = $this->form->getElementValue($usernameFieldKey);
-    // Pass username and password to our custom auth function.
-    if ($this->authenticate_user($username, $password)) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  /**
-   * Validation function
-   *  Makes sure username does not already exist.
-   *
-   * @param $value
-   *
-   * @return bool
-   */
-  function validate_username($value) {
-    $user = new User();
-    $user->load(['username =?', $value]);
-
-    if ($user->username) {
-      return false;
-    }
-    else {
-      return true;
-    }
-  }
-
-  /**
-   * Validation function
-   *  When editing or creating a password makes sure both passwords entered
-   *  match.
-   *
-   * @param $originalFieldValue
-   *  Value from first password field
-   * @param $compareFieldKey
-   *  Key for second password field so we can look up value.
-   * @return bool
-   */
-  function validate_match_field($originalFieldValue, $compareFieldKey) {
-
-    if ($originalFieldValue == $this->form->getElementValue($compareFieldKey)) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  /**
-   * Validation function
-   *  Makes sure super user is not being deleted.
-   *
-   * @param $uid
-   *  User id of user being deleted
-   * @return bool
-   */
-  function validate_user_deletion($uid) {
-    if ($uid == 1) {
-      return false;
-    }
-    else {
-      return true;
     }
   }
 }
