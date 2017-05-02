@@ -4,10 +4,12 @@ Class StoryController extends Controller {
 
   private $form;
   private $formValues;
+  private $validation;
   public $sid;
 
   function __construct() {
     parent::__construct();
+    $this->validation = new Validation();
     $this->sid = Helper::explodePath(2);
   }
 
@@ -21,6 +23,7 @@ Class StoryController extends Controller {
   function addStory() {
 
     $this->storyForm('add');
+    $this->form->setDefaults(['publish' => true]);
 
     if ($this->form->validate()) {
       // Put the posted values in a class vars.
@@ -36,6 +39,7 @@ Class StoryController extends Controller {
 
       $story = new Story();
       $story->title = $this->formValues['title'];
+      $story->short_title = $this->formValues['shortTitle'];
       $story->picture_id = $picture->get('_id');
       $story->created_by = $this->f3->get('SESSION.uid');
       $story->post_date = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : null;
@@ -83,6 +87,7 @@ Class StoryController extends Controller {
       $story = new Story();
       $story->load(['id = ?', $this->sid]);
       $story->title = $this->formValues['title'];
+      $story->short_title = $this->formValues['shortTitle'];
       $story->created_by = $this->f3->get('SESSION.uid');
       $story->published = $this->formValues['publish'];
       $story->post_date = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : null;
@@ -131,7 +136,7 @@ Class StoryController extends Controller {
     $this->display('Form.tpl');
   }
 
-  function storyAddEditForm($op) {
+  function storyForm($op) {
     if ($op == 'add') {
       $this->form = new HTML_QuickForm('add_story', 'POST', '/story/add');
     }
@@ -140,6 +145,7 @@ Class StoryController extends Controller {
     }
 
     $this->form->addElement('text', 'title', 'Title:');
+    $this->form->addElement('text', 'shortTitle', 'URL Friendly Title:');
 
     $this->form->setMaxFileSize(5242880);
     $this->form->addElement('file', 'titlePage', 'Title Page:');
@@ -152,37 +158,15 @@ Class StoryController extends Controller {
 
     $this->form->addElement('submit', 'btnSubmit', 'Save');
 
-    $this->form->addRule('title', 'Username is required', 'required');
-    $this->form->addRule('titlePage', 'Username is required', 'required');
+    $this->form->addRule('title', 'Title is required', 'required');
+    $this->form->addRule('shortTitle', 'Require field', 'required');
+    $this->form->addRule('titlePage', 'File is required', 'uploadedfile');
 
-    $this->form->registerRule('pictureDimensions', 'function', 'validatePictureDimensions', $this);
+    $this->form->registerRule('pictureDimensions', 'function', 'validatePictureDimensions', $this->validation);
     $ruleMsg = 'Picture Dimensions are too small! Min Width: ' . $this->f3->get('imgLarge') . ' Min Height: ' . $this->f3->get('imgMinHeight');
     $this->form->addRule('titlePage', $ruleMsg, 'pictureDimensions');
 
-    $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this);
+    $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
     $this->form->addRule('titlePage', 'Picture file type not supported', 'pictureMimeType');
-  }
-
-  // TODO: create validation class if possible.
-  function validatePictureDimensions($values) {
-    $image_info = getimagesize($values['tmp_name']);
-    $image_width  = $image_info[0];
-    $image_height = $image_info[1];
-    if ($image_width >= $this->f3->get('imgLarge')
-      && $image_height >= $this->f3->get('imgMinHeight')) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  function validateMimeType($values) {
-    if ($values['type'] == 'image/jpeg') {
-      return true;
-    }
-    else {
-      return false;
-    }
   }
 }
