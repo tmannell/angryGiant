@@ -12,7 +12,7 @@ class Setup extends Controller {
   protected $f3;
   /**
    * @var
-   *  DB connection inheritied from controller.
+   *  DB connection inherited from controller.
    */
   protected $db;
   /**

@@ -1,11 +1,24 @@
 <?php
 
+/**
+ * Class Validation
+ */
 class Validation extends Controller {
 
+  /**
+   * Validation constructor.
+   */
   function __construct() {
     parent::__construct();
   }
 
+  /**
+   * Validates image dimensions defined in config.ini
+   *
+   * @param $file
+   *  The file info submitted through a form.
+   * @return bool
+   */
   function validatePictureDimensions($file) {
     $image_info = getimagesize($file['tmp_name']);
     $image_width  = $image_info[0];
@@ -19,6 +32,14 @@ class Validation extends Controller {
     }
   }
 
+  /**
+   * Validates image mime type
+   *  currently angryGiant only supports jpeg.
+   *
+   * @param $file
+   *  The file info submitted through a form.
+   * @return bool
+   */
   function validateMimeType($file) {
     if ($file['type'] == 'image/jpeg') {
       return true;
@@ -32,7 +53,8 @@ class Validation extends Controller {
    * Validation function
    *  Makes sure username does not already exist.
    *
-   * @param $value
+   * @param $username
+   *  The username to check.
    *
    * @return bool
    */
@@ -53,13 +75,13 @@ class Validation extends Controller {
    *  Ensure that two fields that are supposed to match do.
    *
    * @param $originalFieldValue
-   *  Value from first password field
-   * @param $compareFieldKey
-   *  Key for second password field so we can look up value.
+   *  Value from first field
+   * @param $compareField
+   *  Value from the comparative field.
    * @return bool
    */
-  function validate_match_field($originalFieldValue, $compareFieldKey) {
-    if ($originalFieldValue == $compareFieldKey) {
+  function validate_match_field($originalFieldValue, $compareField) {
+    if ($originalFieldValue == $compareField) {
       return true;
     }
     else {
@@ -106,16 +128,17 @@ class Validation extends Controller {
     }
   }
 
+  /**
+   *  Validates page number is unique to it's parent (story).
+   * @param $pageNumber
+   *  The page number submitted via form.
+   * @param $storyId
+   *  The story id the page belongs to also submitted via form.
+   * @return bool
+   */
   function validatePageNumber($pageNumber, $storyId) {
     $page = new Page;
-    $pages = $page->listPageNumbersInStory($storyId);
-
-    foreach ($pages as $page) {
-      if ($page->page_number == $pageNumber) {
-        return false;
-      }
-    }
-
-    return true;
+    $page->load(['story_id = ? and page_number = ?', $storyId, $pageNumber]);
+    return ($page->id) ? false : true;
   }
 }

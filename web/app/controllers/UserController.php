@@ -7,16 +7,29 @@ Class UserController extends Controller {
 
   /**
    * @var
+   *  Stores HTML_QuickForm Obj.
+   */
+  protected $form;
+  /**
+   * @var
    *  Stores submitted form data.
    */
   private $formValues;
   /**
-   * @var
-   *  Stores HTML_QuickForm Obj.
+   * @var array|string
+   *  User ID
    */
-  private $form;
-  private $validation;
-  private $uid;
+  protected $uid;
+  /**
+   * @var \User
+   *  User Obj.
+   */
+  private $user;
+  /**
+   * @var \Validation
+   *  Validation Obj.
+   */
+  protected $validation;
 
   /**
    * UserController constructor.
@@ -26,9 +39,33 @@ Class UserController extends Controller {
   function __construct() {
     parent::__construct();
 
-    $this->validation = new Validation();
-    // Get user id out of url.
-    $this->uid = Helper::explodePath(2);
+    // Set formValues if form has been submitted
+    if (!empty($_POST)) {
+      $this->formValues = $_POST;
+    }
+
+    // If we are loading a form (add, edit, delete)
+    // load the validation object.
+    if (Helper::explodePath(3) || Helper::explodePath(2) == 'add') {
+      $this->validation = new Validation();
+    }
+
+    // If we are not adding a new user lets load up the
+    // current user obj and store the uid in a separate var.
+    if (Helper::explodePath(3) == 'edit' || Helper::explodePath(3) == 'delete' || is_numeric(Helper::explodePath(2))) {
+
+      // Get the story identifier (id or short_title) from URL
+      $this->uid = Helper::explodePath(2);
+
+      // Load story obj based on identifier.
+      $this->user = new User();
+      $this->user->load(['id = ?', $this->uid]);
+
+      // if the obj wasn't populated lets redirect to a 404.
+      if (!$this->user->id) {
+        $this->f3->error(404);
+      }
+    }
   }
 
   /**
@@ -56,13 +93,11 @@ Class UserController extends Controller {
     $this->form->addRule('password', 'Please enter a password', 'required');
 
     // Add some custom validation, check if password matches the one in the database.
-    $this->form->registerRule('check_password', 'function', 'validate_password', $this);
+    $this->form->registerRule('check_password', 'function', 'validate_password', $this->validation);
     $this->form->addRule('password', 'Password is incorrect!', 'check_password', 'username');
 
     // If validation passes then the form has been submitted. Let's process the form values.
     if ($this->form->validate()) {
-      // Put the posted values in a class var.
-      $this->formValues = $_POST;
       // Populate user obj based on username (usernames must be unique)
       $user = new User();
       $user->load(['username = ?', $this->formValues['username']]);
@@ -71,17 +106,16 @@ Class UserController extends Controller {
       // and redirect user to their user page.
       $this->f3->reroute('/user/' . $user->id);
     }
-    else {
-      // Create new render obj to render forms
-      $renderer = new HTML_QuickForm_Renderer_Tableless();
-      // The form must accept the renderer to convert it to html
-      $this->form->accept($renderer);
 
-      // Assign vars to template
-      $this->assign('form', $renderer->toHtml());
-      // And display it.
-      $this->display('Form.tpl');
-    }
+    // Create new render obj to render forms
+    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    // The form must accept the renderer to convert it to html
+    $this->form->accept($renderer);
+
+    // Assign vars to template
+    $this->assign('form', $renderer->toHtml());
+    // And display it.
+    $this->display('Form.tpl');
   }
 
   /**
@@ -91,11 +125,7 @@ Class UserController extends Controller {
    * passes it to a smarty template.
    */
   function viewUser() {
-    $user = new User;
-    $user->load(['id = ?', $this->uid]);
-
-
-    $this->assign('username', $user->username);
+    $this->assign('username', $this->user->username);
     $this->display('View.tpl');
   }
 
@@ -121,11 +151,10 @@ Class UserController extends Controller {
 
     // Custom validation, make sure the passwords match.
     $this->form->registerRule('match_field', 'function', 'validate_match_field', $this->validation);
-    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', $_POST['password_2']);
+    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', $this->formValues['password_2']);
 
     // Process submitted form.
     if ($this->form->validate()) {
-      $this->formValues = $_POST;
       // Create new user obj with submitted form values.
       $user = new User();
       $user->username = $this->formValues['username'];
@@ -137,13 +166,11 @@ Class UserController extends Controller {
       $this->f3->reroute('/user/' . $user->id);
     }
     // If the form hasn't been submitted display the form/template.
-    else {
-      $renderer = new HTML_QuickForm_Renderer_Tableless();
-      $this->form->accept($renderer);
+    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $this->form->accept($renderer);
 
-      $this->assign('form', $renderer->toHtml());
-      $this->display('Form.tpl');
-    }
+    $this->assign('form', $renderer->toHtml());
+    $this->display('Form.tpl');
   }
 
   /**
@@ -161,14 +188,12 @@ Class UserController extends Controller {
     $this->form->addRule('password_2', 'Please re-enter password', 'required');
 
     $this->form->registerRule('match_field', 'function', 'validate_match_field', $this->validation);
-    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', $_POST['password_2']);
+    $this->form->addRule('password_1', 'Passwords do not match!', 'match_field', $this->formValues['password_2']);
 
     if ($this->form->validate()) {
-      $this->formValues = $_POST;
-      $user = new User();
-      $user->load(['id = ?', $this->uid]);
-      $user->password = $this->cryptPassword($this->formValues['password_1']);
-      $user->save();
+      // save encrypted password.
+      $this->user->password = $this->cryptPassword($this->formValues['password_1']);
+      $this->user->save();
 
       // Set success message in session var
       Helper::setMessage('Password successfully updated', 'success');
@@ -190,7 +215,6 @@ Class UserController extends Controller {
   function deleteUser() {
     // Build form.
     $this->form = new HTML_QuickForm('delete_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('hidden', 'current_user', $this->uid);
     $this->form->addElement('submit', 'btnSubmit', 'Delete');
     $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/user\'"');
 
@@ -200,10 +224,8 @@ Class UserController extends Controller {
 
     // Process submission.
     if ($this->form->validate()) {
-      $this->formValues = $_POST;
-      $user = new User();
       // Delete user
-      $user->erase(['id = ?', $this->uid]);
+      $this->user->erase();
       // Success message
       Helper::setMessage('User has been successfully deleted', 'success');
       // Reroute to user page.
