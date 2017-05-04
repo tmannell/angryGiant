@@ -7,16 +7,6 @@ class Setup extends Controller {
 
   /**
    * @var
-   *  Base Instance inherited from controller.
-   */
-  protected $f3;
-  /**
-   * @var
-   *  DB connection inherited from controller.
-   */
-  protected $db;
-  /**
-   * @var
    *  Form stored in class, used to access values in validation.
    */
   protected $form;
@@ -170,7 +160,6 @@ class Setup extends Controller {
   function insertAdminUser() {
     // Insert Admin info;
     $userController = new UserController;
-    $this->db = new \DB\SQL($this->f3->get('sqliteDB'));
     $this->db->exec(
       "INSERT INTO users (username, password) VALUES (?, ?)",
       [
