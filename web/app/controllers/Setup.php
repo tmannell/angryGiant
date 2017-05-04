@@ -25,12 +25,24 @@ class Setup extends Controller {
    *  Submitted form values.
    */
   protected $formValues;
+  /**
+   * @var \Validation
+   *  Validation obj.
+   */
+  protected $validation;
 
   /**
    * Setup constructor.
    */
   function __construct() {
     parent::__construct();
+
+    // Set formValues if form has been submitted
+    if (!empty($_POST)) {
+      $this->formValues = $_POST;
+    }
+
+    $this->validation = new Validation();
   }
 
   /**
@@ -67,12 +79,11 @@ class Setup extends Controller {
     $this->form->addRule('adminPassword_2', 'Please re-enter your password', 'required');
 
     // Custom validation.  Checks if passwords match.
-    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this);
-    $this->form->addRule('adminPassword_1', 'Passwords do not match!', 'match_field', 'adminPassword_2');
+    $this->form->registerRule('match_field', 'function', 'validate_match_field', $this->validation);
+    $this->form->addRule('adminPassword_1', 'Passwords do not match!', 'match_field', $this->formValues['adminPassword_2']);
 
     // If form passes validation install site.
     if ($this->form->validate()) {
-      $this->formValues = $_POST;
       // First create the database.
       $this->createDatabase();
       // Then insert the admin user.
@@ -80,35 +91,12 @@ class Setup extends Controller {
       // Send user back to home page.
       $this->f3->reroute('/');
     }
-    else {
-      // Render the form into html.
-      $renderer = new HTML_QuickForm_Renderer_Tableless();
-      $this->form->accept($renderer);
-      // And output to template.
-      $this->assign('form', $renderer->toHtml());
-      $this->display('Form.tpl');
-    }
-  }
-
-  /**
-   * Validation function
-   *  When editing or creating a password makes sure both passwords entered
-   *  match.
-   *
-   * @param $originalFieldValue
-   *  Value from first password field
-   * @param $compareFieldKey
-   *  Key for second password field so we can look up value.
-   * @return bool
-   */
-  function validate_match_field($originalFieldValue, $compareFieldKey) {
-
-    if ($originalFieldValue == $this->form->getElementValue($compareFieldKey)) {
-      return true;
-    }
-    else {
-      return false;
-    }
+    // Render the form into html.
+    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $this->form->accept($renderer);
+    // And output to template.
+    $this->assign('form', $renderer->toHtml());
+    $this->display('Form.tpl');
   }
 
   /**
