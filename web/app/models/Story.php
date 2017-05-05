@@ -22,6 +22,11 @@ class Story extends \DB\SQL\Mapper {
     return $this->select('id, title', null, array('order' => 'title ASC'));
   }
 
+  /**
+   * Returns all stories.
+   * @param $order
+   * @return object
+   */
   public function allStories($order) {
     return $this->select('*', null, ['order' => implode(' ', $order)]);
   }

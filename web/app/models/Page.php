@@ -23,6 +23,6 @@ class Page extends \DB\SQL\Mapper {
   }
 
   public function allPages($sid, $order) {
-    return $this->select('*', ['story_id = ?', $sid], ['order' => implode(' ', $order)]);
+    return $this->select('*', ['story_id = ?', $sid], ['order' => $order]);
   }
 }
