@@ -50,7 +50,7 @@ Class StoryController extends Controller {
 
     // If we are not adding a new story lets load up the
     // current story obj and store the story identifier in a separate var.
-    if (Helper::explodePath(2) != 'add') {
+    if (Helper::explodePath(2) != 'add' && Helper::explodePath(1) != 'stories') {
       // Get the story identifier (id or short_title) from URL
       $this->identifier = Helper::explodePath(1);
 
@@ -82,7 +82,7 @@ Class StoryController extends Controller {
 
   function viewStories() {
     $story = new Story();
-    $stories = $story->allStories('post_date desc');
+    $stories = $story->allStories(true, 'post_date desc');
     $this->assign('story', $stories);
     $this->display('viewStories.tpl');
   }
