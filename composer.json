@@ -5,6 +5,15 @@
         "smarty/smarty": "~3.1",
         "xfra35/f3-access": "^1.0",
         "rhubarbphp/pikaday": "^1.5",
-        "eventviva/php-image-resize": "^1.6"
+        "eventviva/php-image-resize": "^1.6",
+        "twbs/bootstrap": "4.0.0-alpha.6",
+        "components/jquery": "^3.2"
+    },
+    "scripts": {
+        "post-update-cmd": [
+            "ln -sf ../../vendor/twbs/bootstrap/dist/css/bootstrap.min.css web/css/bootstrap.min.css",
+            "ln -sf ../../vendor/twbs/bootstrap/dist/js/bootstrap.min.js web/js/bootstrap.min.js",
+            "ln -sf ../../vendor/components/jquery/jquery.min.js web/js/jquery.min.js"
+        ]
     }
 }
