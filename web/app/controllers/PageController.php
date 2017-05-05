@@ -17,7 +17,7 @@ class PageController extends Controller {
   private $formValues;
   /**
    * @var \Page
-   *  Page Obj loaded from short_title and page number in the URL.
+   *  Page Obj loaded from short_title or story id and page number in the URL.
    */
   private $page;
   /**
@@ -28,13 +28,13 @@ class PageController extends Controller {
   protected $pageNumber;
   /**
    * @var string
-   *  The short title of the story loaded
+   *  The identifier (short_title|id) of the story loaded
    *  from the URL.
    */
-  protected $shortTitle;
+  protected $identifier;
   /**
    * @var \Story
-   *  Story Obj loaded from short_title in the URL.
+   *  Story Obj loaded from identifier in the URL.
    */
   private $story;
   /**
@@ -62,13 +62,13 @@ class PageController extends Controller {
 
     // If we are not adding a new page lets load up the
     // current page obj and current story obj and store
-    // the page number and short title in a separate var.
+    // the page number and story identifier in a separate var.
     if (Helper::explodePath(2) != 'add') {
       $this->pageNumber = Helper::explodePath(2);
-      $this->shortTitle = Helper::explodePath(1);
+      $this->identifier = Helper::explodePath(1);
 
       $this->story = new Story();
-      $this->story->load(['short_title = ?', $this->shortTitle]);
+      $this->story->load(['id = ? or short_title = ?', $this->identifier, $this->identifier]);
 
       $this->page = new Page();
       $this->page->load(['story_id = ? and page_number = ?', $this->story->id, $this->pageNumber]);
@@ -132,8 +132,11 @@ class PageController extends Controller {
 
       Helper::setMessage('Page has been successfully added', 'success');
 
+      // Lets load up the short title so we can put it in the reroute url.
+      $story = new Story();
+      $story->load(['id = ?', $this->formValues['story']]);
       // Upon save reroute to the new page.
-      $this->f3->reroute( '/' . $this->formValues['story'] . '/' . $this->formValues['pageNumber']);
+      $this->f3->reroute( '/' . $this->short_title . '/' . $this->formValues['pageNumber']);
     }
     // If the form hasn't been submitted render the form.
     // Create new render obj to render forms
@@ -212,7 +215,7 @@ class PageController extends Controller {
     // Build form.
     $this->form = new HTML_QuickForm('deletePage', 'POST', $this->f3->get('PATH'));
     $this->form->addElement('submit', 'btnSubmit', 'Delete');
-    $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/' . $this->shortTitle . '/' . $this->pageNumber . '\'"');
+    $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/' . $this->story->short_title . '/' . $this->pageNumber . '\'"');
 
     // Process submission.
     if ($this->form->validate()) {
@@ -221,7 +224,7 @@ class PageController extends Controller {
       // Success message
       Helper::setMessage('Page has been successfully deleted', 'success');
       // Reroute to user page.
-      $this->f3->reroute('/' . $this->shortTitle);
+      $this->f3->reroute('/' . $this->story->short_title);
     }
 
     // Display form.
@@ -253,7 +256,7 @@ class PageController extends Controller {
     $this->form->addElement('file', 'pagePicture', 'Picture:');
     $this->form->addElement('textarea', 'description', 'Text:');
 
-    // Load all story short titles for select box.
+    // Load all story titles for select box.
     $stories = new Story();
     foreach ($stories->listByTitle() as $story) {
       $options[$story->id] = $story->title;
