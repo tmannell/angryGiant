@@ -44,15 +44,15 @@ Class UserController extends Controller {
       $this->formValues = $_POST;
     }
 
-    // If we are loading a form (add, edit, delete)
+    // If we are loading a form (login, add, edit, delete)
     // load the validation object.
-    if (Helper::explodePath(3) || Helper::explodePath(2) == 'add') {
+    if (Helper::explodePath(3) || Helper::explodePath(2) == 'add' || !Helper::explodePath(2)) {
       $this->validation = new Validation();
     }
 
     // If we are not adding a new user lets load up the
     // current user obj and store the uid in a separate var.
-    if (Helper::explodePath(3) == 'edit' || Helper::explodePath(3) == 'delete' || is_numeric(Helper::explodePath(2))) {
+    if (is_numeric(Helper::explodePath(2))) {
 
       // Get the story identifier (id or short_title) from URL
       $this->uid = Helper::explodePath(2);
@@ -94,7 +94,7 @@ Class UserController extends Controller {
 
     // Add some custom validation, check if password matches the one in the database.
     $this->form->registerRule('check_password', 'function', 'validate_password', $this->validation);
-    $this->form->addRule('password', 'Password is incorrect!', 'check_password', 'username');
+    $this->form->addRule('password', 'Password is incorrect!', 'check_password', $this->formValues['username']);
 
     // If validation passes then the form has been submitted. Let's process the form values.
     if ($this->form->validate()) {
