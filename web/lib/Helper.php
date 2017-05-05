@@ -59,7 +59,7 @@ Class Helper extends Controller {
 
     while (true) {
       // Currently jpg is the only image format supported.
-      $patterns = array('/\.[^.jpg]/', '/\s/', '//\.[^.jpeg]/');
+      $patterns = array('/\.[^.jpg]/', '/\s/', '/\.[^.jpeg]/');
       // Replace all dots and spaces with underscores or nothing unless is the file extension.
       $replacements = array('', '_', '');
       // Tack a unique id onto the beginning of the filename so we don't end up overwriting
