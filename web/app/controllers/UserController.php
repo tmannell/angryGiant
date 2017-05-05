@@ -125,6 +125,7 @@ Class UserController extends Controller {
    * passes it to a smarty template.
    */
   function viewUser() {
+    $this->assign('pageTitle', 'User: ' . $this->user->username);
     $this->assign('username', $this->user->username);
     $this->display('View.tpl');
   }
@@ -135,10 +136,10 @@ Class UserController extends Controller {
   function addUser() {
     // Build form.
     $this->form = new HTML_QuickForm('add_user', 'POST', '/user/add');
-    $this->form->addElement('text', 'username', 'Username:');
-    $this->form->addElement('password', 'password_1', 'Password:');
-    $this->form->addElement('password', 'password_2', 'Re-enter Password:');
-    $this->form->addElement('submit', 'btnSubmit', 'Add User');
+    $this->form->addElement('text', 'username', 'Username:', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password_1', 'Password:', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password_2', 'Re-enter Password:', ['class' => 'form-control']);
+    $this->form->addElement('submit', 'btnSubmit', 'Add User', ['class' => 'btn btn-outline-primary']);
 
     // Add validation - all fields below are required.
     $this->form->addRule('username', 'Username is required', 'required');
@@ -165,11 +166,24 @@ Class UserController extends Controller {
       $user->load(["username = ?", $this->formValues['username']]);
       $this->f3->reroute('/user/' . $user->id);
     }
-    // If the form hasn't been submitted display the form/template.
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
+
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
 
-    $this->assign('form', $renderer->toHtml());
+    if (!empty($renderer->toArray()['errors'])) {
+      foreach ($renderer->toArray()['errors'] as $field => $error) {
+        // todo: add js to highlight field
+        Helper::setMessage($error, 'error');
+        $errors[$field] = 'form-control-danger';
+      }
+    }
+
+    // Add all form elements to the template.
+    if (isset($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+    $this->assign('form', $renderer->toArray());
+
     $this->display('Form.tpl');
   }
 
@@ -181,7 +195,7 @@ Class UserController extends Controller {
     $this->form = new HTML_QuickForm('edit_user', 'POST', $this->f3->get('PATH'));
     $this->form->addElement('password', 'password_1', 'New Password:');
     $this->form->addElement('password', 'password_2', 'Re-enter Password:');
-    $this->form->addElement('submit', 'btnSubmit', 'Save');
+    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary']);
 
     // Make password 1 and 2 required.
     $this->form->addRule('password_1', 'Please enter a new password', 'required');
@@ -215,12 +229,12 @@ Class UserController extends Controller {
   function deleteUser() {
     // Build form.
     $this->form = new HTML_QuickForm('delete_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('submit', 'btnSubmit', 'Delete');
-    $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/user\'"');
+    $this->form->addElement('submit', 'btnSubmit', 'Delete', ['class' => 'btn btn-outline-primary']);
+    $this->form->addElement('button','cancel','Cancel', ['class' => 'btn btn-outline-primary', 'onClick' => "window.location.href = '/user'"]);
 
     // Add custom rule, make sure we aren't deleting user id 1 - super user.
     $this->form->registerRule('check_admin_user', 'function', 'validate_user_deletion', $this->validation);
-    $this->form->addRule('current_user', 'Cannot delete admin user.', 'check_admin_user');
+    $this->form->addRule('btnSubmit', 'Cannot delete admin user.', 'check_admin_user');
 
     // Process submission.
     if ($this->form->validate()) {
@@ -246,6 +260,35 @@ Class UserController extends Controller {
   function logout() {
     $this->f3->clear('SESSION.uid');
     $this->f3->reroute('/');
+  }
+
+  /**
+   * Get the fields/elements defined in this form.
+   *
+   * @return array (string)
+   */
+  public function getRenderableElementNames($renderer) {
+    // The _elements list includes some items which should not be
+    // auto-rendered in the loop -- such as "qfKey" and "buttons".  These
+    // items don't have labels.  We'll identify renderable by filtering on
+    // the 'label'.
+    $elementNames = array();
+
+    foreach ($renderer->toArray()['elements'] as $element) {
+      print '<pre>';
+      print_r($element);
+      exit;
+      /** @var HTML_QuickForm_Element $element */
+      $label = $element->getLabel();
+      if (!empty($label)) {
+        $elements[] = [
+          'html' => $element->getSomthing,
+          'label' => $element->getLabel(),
+        ];
+      }
+      print_r($elements);
+    }
+    return $elementNames;
   }
 
   /**
