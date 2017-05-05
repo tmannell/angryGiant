@@ -50,16 +50,13 @@ Class StoryController extends Controller {
 
     // If we are not adding a new story lets load up the
     // current story obj and store the story identifier in a separate var.
-
     if (Helper::explodePath(2) != 'add') {
-
       // Get the story identifier (id or short_title) from URL
       $this->identifier = Helper::explodePath(1);
 
       // Load story obj based on identifier.
       $this->story = new Story();
       $this->story->load(['id = ? or short_title = ?', $this->identifier, $this->identifier]);
-
       // if the obj wasn't populated lets redirect to a 404.
       if (!$this->story->id) {
         $this->f3->error(404);
@@ -85,16 +82,16 @@ Class StoryController extends Controller {
 
   function viewStories() {
     $story = new Story();
-    $stories = $story->allStories(['post_date', 'desc']);
+    $stories = $story->allStories('post_date desc');
     $this->assign('story', $stories);
     $this->display('viewStories.tpl');
   }
 
-  function viewStoryIndex() {
+  function viewStoryTOC() {
     $page = new Page();
-    $pages = $page->allPages($this->story->id, ['post_date', 'desc']);
+    $pages = $page->allPages($this->story->id, 'post_date desc');
     $this->assign('story', $pages);
-    $this->display('storyIndex.tpl');
+    $this->display('storyTOC.tpl');
   }
 
   /**
@@ -134,7 +131,7 @@ Class StoryController extends Controller {
       Helper::setMessage('Story has been successfully added', 'success');
 
       // Upon save reroute to new story.
-      $this->f3->reroute('/story/' . $story->get('_id'));
+      $this->f3->reroute('/' . $story->get('_id'));
     }
     // If the form hasn't been submitted render the form.
     // Create new render obj to render forms
