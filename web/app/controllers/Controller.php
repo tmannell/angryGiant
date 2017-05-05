@@ -38,13 +38,16 @@ class Controller extends Smarty {
       ->setCacheDir    ($this->f3->get('smartyCacheDir'));
 
     $this->caching = false;       // set Smarty caching off by default
+
   }
 
   /**
    *  Do stuff before we route somewhere.
    */
   public function beforeroute() {
+    // Assign some global smarty vars
 
+    $this->assign('siteName', 'Angry Giant');
   }
 
   /**
@@ -52,7 +55,7 @@ class Controller extends Smarty {
    */
   public function afterroute() {
     // Clear SESSION.<msg>
-    $this->RemoveSessionMessage();
+    $this->removeSessionMessage();
   }
 
   /**
@@ -90,7 +93,7 @@ class Controller extends Smarty {
    * Remove Session Message
    *  Clear any session messages that are in the session var.
    */
-  public function RemoveSessionMessage() {
+  public function removeSessionMessage() {
     $session = $this->f3->get('SESSION');
 
     if ($session['repeat'] == false) {
