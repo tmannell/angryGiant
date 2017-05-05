@@ -16,18 +16,16 @@ class Story extends \DB\SQL\Mapper {
 
   /**
    * Lists all stories by title ascending.
+   *
    * @return object
    */
   public function listByTitle() {
     return $this->select('id, title', null, array('order' => 'title ASC'));
   }
 
-  /**
-   * Returns all stories.
-   * @param $order
-   * @return object
-   */
-  public function allStories($order) {
-    return $this->select('*', null, ['order' => implode(' ', $order)]);
+
+  public function allStories($published = true, $order) {
+    $published = $published ? 'published = 1' : null;
+    return $this->select('*', $published, ['order' => $order]);
   }
 }
