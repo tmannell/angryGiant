@@ -1,5 +1,4 @@
-{extends file="Layout.tpl"}
-{include file="StatusMessage.tpl"}
+{extends file="StatusMessage.tpl"}
 
 {block name="content"}
   {$username}

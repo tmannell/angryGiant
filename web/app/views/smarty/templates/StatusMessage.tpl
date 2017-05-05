@@ -1,3 +1,4 @@
+{extends file="Navigation.tpl"}
 {block name="message"}
     {if isset($smarty.session.success)}
       <message>
@@ -7,9 +8,9 @@
       <message>
         <div class="warning">{$smarty.session.warning}</div>
       </message>
-    {else}
+    {elseif isset($smarty.session.error)}
       <message>
-      <div class="error">{$smarty.session.error}</div>
+      <div class="alert alert-danger">{$smarty.session.error}</div>
       </message>
     {/if}
 {/block}
