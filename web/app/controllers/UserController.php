@@ -84,8 +84,8 @@ Class UserController extends Controller {
 
     // Build Login form
     $this->form = new HTML_QuickForm('user_login', 'POST', '/user');
-    $this->form->addElement('text', 'username', 'Username:', ['class' => 'form-control']);
-    $this->form->addElement('password', 'password', 'Password:', ['class' => 'form-control']);
+    $this->form->addElement('text', 'username', 'Username', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password', 'Password', ['class' => 'form-control']);
     $this->form->addElement('submit', 'btnSubmit', 'Login', ['class' => 'btn btn-outline-primary']);
 
     // Make username and pw required.
@@ -99,8 +99,8 @@ Class UserController extends Controller {
     // If validation passes then the form has been submitted. Let's process the form values.
     if ($this->form->validate()) {
       // Populate user obj based on username (usernames must be unique)
-      $user = new User();
-      $user->load(['username = ?', $this->formValues['username']]);
+      $this->user = new User();
+      $this->user->load(['username = ?', $this->formValues['username']]);
       // Set user id in session var
       $this->f3->set('SESSION.uid', $user->id);
       // and redirect user to their user page.
@@ -139,9 +139,9 @@ Class UserController extends Controller {
   function addUser() {
     // Build form.
     $this->form = new HTML_QuickForm('add_user', 'POST', '/user/add');
-    $this->form->addElement('text', 'username', 'Username:', ['class' => 'form-control']);
-    $this->form->addElement('password', 'password_1', 'Password:', ['class' => 'form-control']);
-    $this->form->addElement('password', 'password_2', 'Re-enter Password:', ['class' => 'form-control']);
+    $this->form->addElement('text', 'username', 'Username', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password_1', 'Password', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password_2', 'Re-enter Password', ['class' => 'form-control']);
     $this->form->addElement('submit', 'btnSubmit', 'Add User', ['class' => 'btn btn-outline-primary']);
 
     // Add validation - all fields below are required.
@@ -180,6 +180,7 @@ Class UserController extends Controller {
       $this->assign('errors', json_encode($errors));
     }
     $this->assign('op', 'add');
+    $this->assign('object', 'user');
     $this->assign('form', $renderer->toArray());
 
     $this->display('Form.tpl');
@@ -191,8 +192,8 @@ Class UserController extends Controller {
   function editUser() {
     // Build form.
     $this->form = new HTML_QuickForm('edit_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('password', 'password_1', 'New Password:', ['class' => 'form-control']);
-    $this->form->addElement('password', 'password_2', 'Re-enter Password:', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password_1', 'New Password', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password_2', 'Re-enter Password', ['class' => 'form-control']);
     $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary']);
 
     // Make password 1 and 2 required.
@@ -223,6 +224,7 @@ Class UserController extends Controller {
       $this->assign('errors', json_encode($errors));
     }
     $this->assign('op', 'edit');
+    $this->assign('object', $this->user->username);
     $this->assign('form', $renderer->toArray());
 
     $this->display('Form.tpl');
@@ -262,6 +264,7 @@ Class UserController extends Controller {
       $this->assign('errors', json_encode($errors));
     }
     $this->assign('op', 'delete');
+    $this->assign('object', $this->user->username);
     $this->assign('form', $renderer->toArray());
 
     $this->display('Form.tpl');

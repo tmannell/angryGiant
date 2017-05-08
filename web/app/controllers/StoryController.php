@@ -135,12 +135,20 @@ Class StoryController extends Controller {
     }
     // If the form hasn't been submitted render the form.
     // Create new render obj to render forms
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
-    // The form must accept the renderer to convert it to html
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
-    // Assign vars to template
-    $this->assign('form', $renderer->toHtml());
-    // And display it.
+
+    $errors = Helper::checkErrors($renderer);
+
+    // Add all form elements to the template.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+    $this->assign('op', 'add');
+    $this->assign('object', 'story');
+
+    $this->assign('form', $renderer->toArray());
+
     $this->display('Form.tpl');
   }
 
@@ -238,20 +246,20 @@ Class StoryController extends Controller {
     }
 
     // Add form elements
-    $this->form->addElement('text', 'title', 'Title:');
-    $this->form->addElement('text', 'shortTitle', 'URL Friendly Title:');
+    $this->form->addElement('text', 'title', 'Title', ['class' => 'form-control']);
+    $this->form->addElement('text', 'shortTitle', 'URL Friendly Title', ['class' => 'form-control']);
 
     // Set max silze for file upload
     $this->form->setMaxFileSize(5242880);
-    $this->form->addElement('file', 'titlePage', 'Title Page:');
+    $this->form->addElement('file', 'titlePage', 'Title Page', ['class' => 'form-control']);
 
     // todo: wire up javascript date picker and hide date if publish now == yes.
-    $this->form->addElement('radio', 'publish', 'Publish now:', 'Yes', true);
-    $this->form->addElement('radio', 'publish', null, 'No', false);
+    $this->form->addElement('radio', 'publish', 'Publish', 'Now', true, ['class' => 'form-check-input', 'id' => 'publish1']);
+    $this->form->addElement('radio', 'publish', null, 'Later', false, ['class' => 'form-check-input', 'id' => 'publish2']);
 
-    $this->form->addElement('text', 'date', 'Publish Date:', array('id' => 'datepicker'));
+    $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
 
-    $this->form->addElement('submit', 'btnSubmit', 'Save');
+    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary']);
 
     // Add validation.
     $this->form->addRule('title', 'Title is required', 'required');
