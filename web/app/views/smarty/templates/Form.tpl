@@ -3,7 +3,7 @@
 
   {if $op == 'delete'}
     {assign var=elementClass value="btn-group inline"}
-    
+
   {else}
     {assign var=elementClass value="form-group"}
   {/if}
@@ -39,7 +39,9 @@
            if (key === 'password_1') {
                $("#password_1, #password_2").addClass(value);
            }
-           $("#" + key).addClass(value);
+           else {
+               $("#" + key).addClass(value);
+           }
           });
       });
     {/literal}
