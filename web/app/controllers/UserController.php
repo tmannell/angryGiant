@@ -84,9 +84,9 @@ Class UserController extends Controller {
 
     // Build Login form
     $this->form = new HTML_QuickForm('user_login', 'POST', '/user');
-    $this->form->addElement('text', 'username', 'Username:');
-    $this->form->addElement('password', 'password', 'Password:');
-    $this->form->addElement('submit', 'btnSubmit', 'Login');
+    $this->form->addElement('text', 'username', 'Username:', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password', 'Password:', ['class' => 'form-control']);
+    $this->form->addElement('submit', 'btnSubmit', 'Login', ['class' => 'btn btn-outline-primary']);
 
     // Make username and pw required.
     $this->form->addRule('username', 'Username is required', 'required');
@@ -107,14 +107,17 @@ Class UserController extends Controller {
       $this->f3->reroute('/user/' . $user->id);
     }
 
-    // Create new render obj to render forms
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
-    // The form must accept the renderer to convert it to html
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
 
-    // Assign vars to template
-    $this->assign('form', $renderer->toHtml());
-    // And display it.
+    $errors = Helper::checkErrors($renderer);
+
+    // Add all form elements to the template.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+    $this->assign('form', $renderer->toArray());
+
     $this->display('Form.tpl');
   }
 
@@ -170,18 +173,13 @@ Class UserController extends Controller {
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
 
-    if (!empty($renderer->toArray()['errors'])) {
-      foreach ($renderer->toArray()['errors'] as $field => $error) {
-        // todo: add js to highlight field
-        Helper::setMessage($error, 'error');
-        $errors[$field] = 'form-control-danger';
-      }
-    }
+    $errors = Helper::checkErrors($renderer);
 
     // Add all form elements to the template.
-    if (isset($errors)) {
+    if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    $this->assign('op', 'add');
     $this->assign('form', $renderer->toArray());
 
     $this->display('Form.tpl');
@@ -193,8 +191,8 @@ Class UserController extends Controller {
   function editUser() {
     // Build form.
     $this->form = new HTML_QuickForm('edit_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('password', 'password_1', 'New Password:');
-    $this->form->addElement('password', 'password_2', 'Re-enter Password:');
+    $this->form->addElement('password', 'password_1', 'New Password:', ['class' => 'form-control']);
+    $this->form->addElement('password', 'password_2', 'Re-enter Password:', ['class' => 'form-control']);
     $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary']);
 
     // Make password 1 and 2 required.
@@ -215,10 +213,18 @@ Class UserController extends Controller {
       $this->f3->reroute('/user/' . $this->uid);
     }
 
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
 
-    $this->assign('form', $renderer->toHtml());
+    $errors = Helper::checkErrors($renderer);
+
+    // Add all form elements to the template.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+    $this->assign('op', 'edit');
+    $this->assign('form', $renderer->toArray());
+
     $this->display('Form.tpl');
   }
 
@@ -246,11 +252,18 @@ Class UserController extends Controller {
       $this->f3->reroute('/user');
     }
 
-    // Display form.
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
 
-    $this->assign('form', $renderer->toHtml());
+    $errors = Helper::checkErrors($renderer);
+
+    // Add all form elements to the template.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+    $this->assign('op', 'delete');
+    $this->assign('form', $renderer->toArray());
+
     $this->display('Form.tpl');
   }
 
