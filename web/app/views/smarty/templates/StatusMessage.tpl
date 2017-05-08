@@ -1,16 +1,33 @@
 {extends file="Navigation.tpl"}
 {block name="message"}
-    {if isset($smarty.session.success)}
-      <message>
-        <div class="success">{$smarty.session.success}</div>
-      </message>
-    {elseif isset($smarty.session.warning)}
-      <message>
-        <div class="warning">{$smarty.session.warning}</div>
-      </message>
-    {elseif isset($smarty.session.error)}
-      <message>
-      <div class="alert alert-danger">{$smarty.session.error}</div>
-      </message>
+    {if !empty($smarty.session.success)}
+      {foreach $smarty.session.success as $msg}
+        <div class="container-fluid row">
+        <div class="col-sm"></div>
+        <div class="alert alert-success col-sm-10">{$msg}</div>
+        <div class="col-sm"></div>
+      {/foreach}
+    {elseif !empty($smarty.session.info)}
+      {foreach $smarty.session.info as $msg}
+        <div class="container-fluid row">
+        <div class="col-sm"></div>
+        <div class="alert alert-info col-sm-10">{$msg}</div>
+        <div class="col-sm"></div>
+      {/foreach}
+    {elseif !empty($smarty.session.warning)}
+      {foreach $smarty.session.warning as $msg}
+        <div class="container-fluid row">
+        <div class="col-sm"></div>
+        <div class="alert alert-warning col-sm-10">{$msg}</div>
+        <div class="col-sm"></div>
+      {/foreach}
+    {elseif !empty($smarty.session.error)}
+      {foreach $smarty.session.error as $msg}
+        <div class="container-fluid row">
+        <div class="col-sm"></div>
+        <div class="alert alert-danger col-sm-8">{$msg}</div>
+        <div class="col-sm"></div>
+        </div>
+      {/foreach}
     {/if}
 {/block}

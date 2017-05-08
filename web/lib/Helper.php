@@ -19,7 +19,10 @@ Class Helper extends Controller {
    */
   static function setMessage($message, $type, $repeat = false) {
     $f3 = \Base::instance();
-    $f3->set("SESSION.$type", $message);
+    if ($type == 'error') {
+      $f3->push("SESSION.$type", $message);
+    }
+
     $f3->set("SESSION.repeat", $repeat);
   }
 
@@ -85,5 +88,16 @@ Class Helper extends Controller {
 
     // Return the filename for further use.
     return $filename;
+  }
+
+  static function checkErrors($renderer) {
+    $errors = [];
+    if (!empty($renderer->toArray()['errors'])) {
+      foreach ($renderer->toArray()['errors'] as $field => $error) {
+        Helper::setMessage($error, 'error');
+        $errors[$field] = 'has-danger';
+      }
+    }
+    return $errors;
   }
 }
