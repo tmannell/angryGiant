@@ -144,12 +144,16 @@ Class StoryController extends Controller {
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+//    print '<pre>';
+//    print_r($rendered);
+//    exit;
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'add');
     $this->assign('object', 'story');
 
-    $this->assign('form', $renderer->toArray());
-
-    $this->display('Form.tpl');
+    $this->display('StoryForm.tpl');
   }
 
   /**
@@ -259,7 +263,7 @@ Class StoryController extends Controller {
 
     $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
 
-    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary']);
+    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary align-content-center']);
 
     // Add validation.
     $this->form->addRule('title', 'Title is required', 'required');
