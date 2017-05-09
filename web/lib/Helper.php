@@ -100,4 +100,19 @@ Class Helper extends Controller {
     }
     return $errors;
   }
+
+  static function modifyRenderedOutput($rendered) {
+    $elements = [];
+    foreach ($rendered['elements'] as $element) {
+
+      if ($element['type'] == 'radio') {
+        $elements[$element['name']][] = $element;
+      }
+      else {
+        $elements[$element['name']] = $element;
+      }
+    }
+
+    return ['attributes' => $rendered['attributes'], 'elements' => $elements];
+  }
 }
