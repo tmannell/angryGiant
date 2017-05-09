@@ -13,35 +13,41 @@
   {/if}
 
   <div id="form-title" class="col-sm-4 offset-sm-4"><h3>{$formTitle}</h3></div>
-  <div class="col-sm-4 offset-sm-4">
-    <form {$form.attributes}>
-      {foreach $form.elements as $element}
-        {if $element.type == 'radio'}
 
-            {if $element.label != ''}
-              <legend class="col-form-legend">{$element.label}</legend>
-            {/if}
-            <div class="publish form-check form-check-inline form-check-label">{$element.html}</div>
 
-        {elseif $element.name == 'date'}
-          <div id="{$element.name}" class="{$elementClass}" style="display:none;">
-            {if $element.type != 'hidden'}
-              <label for="{$element.name}" class="col-form-label">{$element.label}</label>
-            {/if}
-            {$element.html}
+    <form {$attributes}>
+      <div class="row">
+        <div class="col-sm-4 offset-sm-2">
+          <div id="title" class="form-group">
+            <label>{$elements.title.label}</label>
+            {$elements.title.html}
           </div>
-        {else}
-          <div id="{$element.name}" class={$elementClass}>
-            {if $element.type != 'hidden'}
-              <label for="{$element.name}" class="col-form-label">{$element.label}</label>
-            {/if}
-            {$element.html}
+          <div id="title-page" class="form-group">
+            <label>{$elements.titlePage.label}</label>
+            {$elements.titlePage.html}
           </div>
-        {/if}
-
-      {/foreach}
+          <div id="publish" class="form-group">
+            {foreach $elements.publish as $radio}
+              {if $radio.label != ''}
+                <legend class="col-form-legend">{$radio.label}</legend>
+              {/if}
+              <div class="publish form-check form-check-inline form-check-label">{$radio.html}</div>
+            {/foreach}
+          </div>
+          <div id="date" class="form-group" style="display:none;">
+            <label>{$elements.date.label}</label>
+            {$elements.date.html}
+          </div>
+        </div>
+        <div class="col-sm-2">
+          {if $op == 'edit'}
+            <div class="text-center" id="title-age-image"><img src="{$imgPath}" alt="$title" /></div>
+          {/if}
+          <div class="text-center">{$elements.btnSubmit.html}</div>
+        </div>
+      </div>
     </form>
-  </div>
+
 
   <script type="text/javascript">
     var errors = {$errors}
@@ -60,8 +66,6 @@
 
           });
       });
-
-
 
       function highlightErrors() {
           $.each(errors, function(key, value) {
