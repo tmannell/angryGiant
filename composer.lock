@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "39929636ec6e4f0e707b939e5307ad8a",
+    "content-hash": "048538423fbb593311904aff81112fcc",
     "packages": [
         {
             "name": "bcosca/fatfree-core",
@@ -78,6 +78,29 @@
             "description": "jQuery JavaScript Library",
             "homepage": "http://jquery.com",
             "time": "2017-03-21T07:01:49+00:00"
+        },
+        {
+            "name": "etdsolutions/moment",
+            "version": "2.15.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/etd-framework/moment.git",
+                "reference": "ed499ab7f4c671382010952f5c3790577d539f80"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/etd-framework/moment/zipball/ed499ab7f4c671382010952f5c3790577d539f80",
+                "reference": "ed499ab7f4c671382010952f5c3790577d539f80",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Shim repository for Moment.js",
+            "homepage": "http://momentjs.com",
+            "time": "2016-09-14T10:06:40+00:00"
         },
         {
             "name": "eventviva/php-image-resize",
