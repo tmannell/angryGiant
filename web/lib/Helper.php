@@ -19,10 +19,7 @@ Class Helper extends Controller {
    */
   static function setMessage($message, $type, $repeat = false) {
     $f3 = \Base::instance();
-    if ($type == 'error') {
-      $f3->push("SESSION.$type", $message);
-    }
-
+    $f3->push("SESSION.$type", $message);
     $f3->set("SESSION.repeat", $repeat);
   }
 
@@ -62,7 +59,7 @@ Class Helper extends Controller {
 
     while (true) {
       // Currently jpg is the only image format supported.
-      $patterns = array('/\.[^.jpg]/', '/\s/', '/\.[^.jpeg]/');
+      $patterns = array('/\.[^.jpg]/i', '/\s/i', '/\.[^.jpeg]/i');
       // Replace all dots and spaces with underscores or nothing unless is the file extension.
       $replacements = array('', '_', '');
       // Tack a unique id onto the beginning of the filename so we don't end up overwriting
