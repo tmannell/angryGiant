@@ -95,6 +95,13 @@ class PageController extends Controller {
     }
   }
 
+  function viewPages() {
+    $page = new Page();
+    $pages = $page->allPages($this->story->id, 'post_date desc');
+    $this->assign('story', $pages);
+    $this->display('viewPages.tpl');
+  }
+
   /**
    * Add Page Form.
    */
