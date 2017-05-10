@@ -145,13 +145,11 @@ Class StoryController extends Controller {
       $this->assign('errors', json_encode($errors));
     }
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
-//    print '<pre>';
-//    print_r($rendered);
-//    exit;
+
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'add');
-    $this->assign('object', 'story');
+    $this->assign('formTitle', 'Add <em>story</em>');
 
     $this->display('StoryForm.tpl');
   }
@@ -167,9 +165,10 @@ Class StoryController extends Controller {
     // Set form defaults based on current story.
     $this->form->setDefaults(
       [
-        'title'     => $this->story->title,
-        'publish'   => $this->story->published,
-        'date'      => $this->story->post_date,
+        'title'      => $this->story->title,
+        'shortTitle' => $this->story->short_title,
+        'publish'    => $this->story->published,
+        'date'       => $this->story->post_date,
       ]
     );
 
@@ -197,14 +196,26 @@ Class StoryController extends Controller {
       $this->story->save();
     }
 
+    // If the form hasn't been submitted render the form.
     // Create new render obj to render forms
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
-    // The form must accept the renderer to convert it to html
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
-    // Assign vars to template
-    $this->assign('form', $renderer->toHtml());
-    // And display it.
-    $this->display('Form.tpl');
+
+    $errors = Helper::checkErrors($renderer);
+
+    // Add all form elements to the template.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('op', 'add');
+    $this->assign('formTitle', 'Edit <em>story</em>');
+    $this->assign('filename', $this->story->filename);
+
+    $this->display('StoryForm.tpl');
   }
 
   /**
@@ -214,7 +225,7 @@ Class StoryController extends Controller {
     // Build form.
     $this->form = new HTML_QuickForm('deleteStory', 'POST', $this->f3->get('PATH'));
     $this->form->addElement('submit', 'btnSubmit', 'Delete');
-    $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/stories\'"');
+    $this->form->addElement('button','btnCancel','Cancel','onClick="window.location.href = \'/stories\'"');
 
     // Process submission.
     if ($this->form->validate()) {
@@ -263,7 +274,8 @@ Class StoryController extends Controller {
 
     $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
 
-    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary align-content-center']);
+    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-primary']);
+    $this->form->addElement('button','btnCancel','Cancel',['onClick' => "window.location.href='/stories'", 'class' => 'btn btn-outline-primary']);
 
     // Add validation.
     $this->form->addRule('title', 'Title is required', 'required');
