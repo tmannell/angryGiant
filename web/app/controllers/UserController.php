@@ -267,7 +267,7 @@ Class UserController extends Controller {
     $this->assign('object', $this->user->username);
     $this->assign('form', $renderer->toArray());
 
-    $this->display('Form.tpl');
+    $this->display('UserForm.tpl');
   }
 
   /**
