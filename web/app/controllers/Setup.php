@@ -58,10 +58,10 @@ class Setup extends Controller {
   function installSetupForm() {
     // Build form.
     $this->form = new HTML_QuickForm('admin_user_setup', 'POST', '/install');
-    $this->form->addElement('text', 'adminUsername', 'Admin Username:');
-    $this->form->addElement('password', 'adminPassword_1', 'Admin Password:');
-    $this->form->addElement('password', 'adminPassword_2', 'Re-enter Password:');
-    $this->form->addElement('submit', 'btnSubmit', 'Install');
+    $this->form->addElement('text', 'adminUsername', 'Admin Username', ['class' => 'form-control']);
+    $this->form->addElement('password', 'adminPassword_1', 'Admin Password', ['class' => 'form-control']);
+    $this->form->addElement('password', 'adminPassword_2', 'Re-enter Password', ['class' => 'form-control']);
+    $this->form->addElement('submit', 'btnSubmit', 'Install', ['class' => 'btn btn-primary']);
 
     // Add validation
     $this->form->addRule('adminUsername', 'Username is required', 'required');
@@ -81,12 +81,23 @@ class Setup extends Controller {
       // Send user back to home page.
       $this->f3->reroute('/');
     }
-    // Render the form into html.
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
-    // And output to template.
-    $this->assign('form', $renderer->toHtml());
-    $this->display('Form.tpl');
+
+    $errors = Helper::checkErrors($renderer);
+
+    // Add all form elements to the template.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('op', 'install');
+    $this->assign('formTitle', 'Install <em>AngryGiant</em>');
+
+    $this->display('InstallForm.tpl');
   }
 
   /**
@@ -152,6 +163,16 @@ class Setup extends Controller {
             ON DELETE CASCADE 
             ON UPDATE CASCADE)");
     $db->commit();
+
+    $db->exec(
+      "CREATE VIEW fullStory AS
+        SELECT pictures.filename,
+               stories.id as sid, stories.title, stories.short_title, stories.post_date as story_post_date, stories.created_by as story_uid, stories.published as story_published,
+               pages.id as pgid, pages.description, pages.page_number, pages.post_date as page_post_date, pages.created_by as page_uid, pages.published as page_published
+        FROM stories
+        INNER JOIN pictures on stories.picture_id = pictures.id
+        LEFT JOIN pages on stories.id = pages.story_id"
+    );
   }
 
   /**
