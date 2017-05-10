@@ -1,6 +1,6 @@
 <?php
 // Set DB instance
-\Base::instance()->set('DB',new DB\SQL(\Base::instance()->get('sqliteDB')));
+\Base::instance()->set('DB', new DB\SQL(\Base::instance()->get('sqliteDB')));
 
 /**
  * Class Story
@@ -27,10 +27,5 @@ class Story extends \DB\SQL\Mapper {
   public function allStories($published = true, $order) {
     $published = $published ? 'published = 1' : null;
     return $this->select('*', $published, ['order' => $order]);
-  }
-
-
-  public function fullStories($id = null, $shortTitle = null) {
-    //todo: load story and all related objs ie, picture, pages
   }
 }
