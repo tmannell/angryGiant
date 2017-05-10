@@ -44,7 +44,8 @@ Class StoryController extends Controller {
 
     // If we are loading a form (add, edit, delete)
     // load the validation object.
-    if (Helper::explodePath(3) || Helper::explodePath(2) == 'add') {
+    $op = Helper::explodePath(2);
+    if ($op = 'add' || $op == 'edit' || $op == 'delete') {
       $this->validation = new Validation();
     }
 
@@ -87,13 +88,6 @@ Class StoryController extends Controller {
     $this->display('viewStories.tpl');
   }
 
-  function viewStoryTOC() {
-    $page = new Page();
-    $pages = $page->allPages($this->story->id, 'post_date desc');
-    $this->assign('story', $pages);
-    $this->display('storyTOC.tpl');
-  }
-
   /**
    *  Add story form.
    */
@@ -112,7 +106,6 @@ Class StoryController extends Controller {
       $file['name'] = $_FILES['titlePage']['name'];
       // Resize and save image file.
       $filename = Helper::resizeAndSaveImage($file);
-
       // Save new picture obj in db.
       $picture = new Picture();
       $picture->filename = $filename;
@@ -145,9 +138,9 @@ Class StoryController extends Controller {
       $this->assign('errors', json_encode($errors));
     }
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
-
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('pageTitle', 'Add Story');
     $this->assign('op', 'add');
     $this->assign('formTitle', 'Add <em>story</em>');
 
@@ -158,8 +151,6 @@ Class StoryController extends Controller {
    *  Edit story form.
    */
   function editStory() {
-    // TODO: add thumbnail to edit page.
-
     // Build story form.
     $this->storyForm('edit');
     // Set form defaults based on current story.
@@ -174,8 +165,9 @@ Class StoryController extends Controller {
 
     // If form has been submitted update the page in db.
     if ($this->form->validate()) {
+
       // If a new picture has been submitted save, resize, update db.
-      if (isset($_FILES['name'])) {
+      if (!empty($_FILES['titlePage']['name'])) {
         // Prep file for resize and save.
         $file['path'] = $_FILES['titlePage']['tmp_name'];
         $file['name'] = $_FILES['titlePage']['name'];
@@ -191,8 +183,8 @@ Class StoryController extends Controller {
       $this->story->title       = $this->formValues['title'];
       $this->story->short_title = $this->formValues['shortTitle'];
       $this->story->created_by  = $this->f3->get('SESSION.uid');
+      $this->story->post_date   = ($this->formValues['publish'] == true) ? trim($this->formValues['date']) : null;
       $this->story->published   = $this->formValues['publish'];
-      $this->story->post_date   = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : null;
       $this->story->save();
     }
 
@@ -208,12 +200,16 @@ Class StoryController extends Controller {
       $this->assign('errors', json_encode($errors));
     }
 
+    $fullStory = $this->f3->get('fullStory');
+    $fullStory->load(['sid = ? or short_title = ?', $this->identifier, $this->identifier ]);
+
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
-    $this->assign('op', 'add');
+    $this->assign('pageTitle', 'Edit Story: ' . $this->story->title);
+    $this->assign('op', 'edit');
     $this->assign('formTitle', 'Edit <em>story</em>');
-    $this->assign('filename', $this->story->filename);
+    $this->assign('filename', $fullStory->filename);
 
     $this->display('StoryForm.tpl');
   }
@@ -223,9 +219,7 @@ Class StoryController extends Controller {
    */
   function deleteStory() {
     // Build form.
-    $this->form = new HTML_QuickForm('deleteStory', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('submit', 'btnSubmit', 'Delete');
-    $this->form->addElement('button','btnCancel','Cancel','onClick="window.location.href = \'/stories\'"');
+    $this->storyForm('delete');
 
     // Process submission.
     if ($this->form->validate()) {
@@ -236,13 +230,30 @@ Class StoryController extends Controller {
       // Reroute to user page.
       $this->f3->reroute('/stories');
     }
-
-    // Display form.
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    // If the form hasn't been submitted render the form.
+    // Create new render obj to render forms
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
     $this->form->accept($renderer);
 
-    $this->assign('form', $renderer->toHtml());
-    $this->display('Form.tpl');
+    $errors = Helper::checkErrors($renderer);
+
+    // Add all form elements to the template.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+
+    $fullStory = $this->f3->get('fullStory');
+    $fullStory->load(['sid = ? or short_title = ?', $this->identifier, $this->identifier ]);
+
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('pageTitle', 'Delete Story: ' . $this->story->title);
+    $this->assign('op', 'delete');
+    $this->assign('formTitle', 'Delete story: <em>' . $fullStory->title . '</em>');
+    $this->assign('filename', $fullStory->filename);
+
+    $this->display('StoryForm.tpl');
   }
 
   /**
@@ -255,44 +266,57 @@ Class StoryController extends Controller {
     // Generate new form object based on operation.
     if ($op == 'add') {
       $this->form = new HTML_QuickForm('add_story', 'POST', '/story/add');
+      $btnLabel = 'Add';
     }
-    else {
+    elseif ($op == 'edit') {
       $this->form = new HTML_QuickForm('edit_story', 'POST', $this->f3->get('PATH'));
+      $btnLabel = 'Save';
+    }
+    elseif ($op == 'delete') {
+      $this->form = new HTML_QuickForm('deleteStory', 'POST', $this->f3->get('PATH'));
+      $btnLabel = 'delete';
     }
 
-    // Add form elements
-    $this->form->addElement('text', 'title', 'Title', ['class' => 'form-control']);
-    $this->form->addElement('text', 'shortTitle', 'URL Friendly Title', ['class' => 'form-control']);
+    // These fields only apply to add and edit operations.
+    if ($op == 'add' || $op == 'edit') {
+      // Add form elements
+      $this->form->addElement('text', 'title', 'Title', ['class' => 'form-control']);
+      $this->form->addElement('text', 'shortTitle', 'URL Friendly Title', ['class' => 'form-control']);
 
-    // Set max silze for file upload
-    $this->form->setMaxFileSize(5242880);
-    $this->form->addElement('file', 'titlePage', 'Title Page', ['class' => 'form-control']);
+      // Set max size for file upload
+      $this->form->setMaxFileSize($this->f3->get('maxFileSize'));
+      $this->form->addElement('file', 'titlePage', 'Title Page', ['class' => 'form-control']);
 
-    // todo: wire up javascript date picker and hide date if publish now == yes.
-    $this->form->addElement('radio', 'publish', 'Publish', 'Now', true, ['class' => 'form-check-input', 'id' => 'publish1']);
-    $this->form->addElement('radio', 'publish', null, 'Later', false, ['class' => 'form-check-input', 'id' => 'publish2']);
+      // todo: wire up javascript date picker and hide date if publish now == yes.
+      $this->form->addElement('radio', 'publish', 'Publish', 'Now', true, ['class' => 'form-check-input', 'id' => 'publish1']);
+      $this->form->addElement('radio', 'publish', null, 'Later', false, ['class' => 'form-check-input', 'id'    => 'publish2']);
 
-    $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
+      $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
+    }
 
-    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-primary']);
+    // Display buttons for all operations.
+    $this->form->addElement('submit', 'btnSubmit', $btnLabel, ['class' => 'btn btn-primary']);
     $this->form->addElement('button','btnCancel','Cancel',['onClick' => "window.location.href='/stories'", 'class' => 'btn btn-outline-primary']);
 
-    // Add validation.
-    $this->form->addRule('title', 'Title is required', 'required');
-    $this->form->addRule('shortTitle', 'Require field', 'required');
-    // Only require a file upload on the add form.
-    if ($op == 'add') {
-      $this->form->addRule('titlePage', 'File is required', 'uploadedfile');
+    // Rules only apply for add and edit operations.
+    if ($op == 'add' || $op == 'edit') {
+      // Add validation.
+      $this->form->addRule('title', 'Title is required', 'required');
+      $this->form->addRule('shortTitle', 'Require field', 'required');
+      // Only require a file upload on the add form.
+      if ($op == 'add') {
+        $this->form->addRule('titlePage', 'File is required', 'uploadedfile');
+      }
+
+      // Add custom validation rules found in \Validation.
+      // Picture dimensions must be specific size before upload
+      $this->form->registerRule('pictureDimensions', 'function', 'validatePictureDimensions', $this->validation);
+      $ruleMsg = 'Picture Dimensions are too small! Min Width: ' . $this->f3->get('imgLarge') . ' Min Height: ' . $this->f3->get('imgMinHeight');
+      $this->form->addRule('titlePage', $ruleMsg, 'pictureDimensions');
+
+      // Picture Mime Type must be of type jpg.
+      $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
+      $this->form->addRule('titlePage', 'Picture file type not supported', 'pictureMimeType');
     }
-
-    // Add custom validation rules found in \Validation.
-    // Picture dimensions must be specific size before upload
-    $this->form->registerRule('pictureDimensions', 'function', 'validatePictureDimensions', $this->validation);
-    $ruleMsg = 'Picture Dimensions are too small! Min Width: ' . $this->f3->get('imgLarge') . ' Min Height: ' . $this->f3->get('imgMinHeight');
-    $this->form->addRule('titlePage', $ruleMsg, 'pictureDimensions');
-
-    // Picture Mime Type must be of type jpg.
-    $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
-    $this->form->addRule('titlePage', 'Picture file type not supported', 'pictureMimeType');
   }
 }
