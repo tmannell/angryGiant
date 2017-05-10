@@ -1,0 +1,15 @@
+#form-title {
+    padding:5px 75px;
+    background-color:lightpink;
+    border:1px solid deeppink;
+    margin-bottom:25px;
+    font-size:1.5em;
+}
+
+#submit-btns {
+    margin-top:25px;
+}
+
+.form-group {
+    overflow:hidden;
+}
