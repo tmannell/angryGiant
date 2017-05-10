@@ -75,7 +75,6 @@ Class UserController extends Controller {
    * to authorize users.
    */
   function login() {
-
     // Reroute user to view user page is they are already logged in.
     $authStatus = $this->getAuthorizationStatus();
     if ($authStatus == 'authorized' || $authStatus == 'admin' ) {
@@ -86,7 +85,7 @@ Class UserController extends Controller {
     $this->form = new HTML_QuickForm('user_login', 'POST', '/user');
     $this->form->addElement('text', 'username', 'Username', ['class' => 'form-control']);
     $this->form->addElement('password', 'password', 'Password', ['class' => 'form-control']);
-    $this->form->addElement('submit', 'btnSubmit', 'Login', ['class' => 'btn btn-outline-primary']);
+    $this->form->addElement('submit', 'btnSubmit', 'Login', ['class' => 'btn btn-primary']);
 
     // Make username and pw required.
     $this->form->addRule('username', 'Username is required', 'required');
@@ -102,9 +101,9 @@ Class UserController extends Controller {
       $this->user = new User();
       $this->user->load(['username = ?', $this->formValues['username']]);
       // Set user id in session var
-      $this->f3->set('SESSION.uid', $user->id);
+      $this->f3->set('SESSION.uid', $this->user->id);
       // and redirect user to their user page.
-      $this->f3->reroute('/user/' . $user->id);
+      $this->f3->reroute('/user/' . $this->user->id);
     }
 
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
@@ -116,9 +115,15 @@ Class UserController extends Controller {
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
-    $this->assign('form', $renderer->toArray());
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
 
-    $this->display('Form.tpl');
+    $this->assign('pageTitle', 'User Login');
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('op', 'login');
+    $this->assign('formTitle', 'Login');
+
+    $this->display('UserForm.tpl');
   }
 
   /**
@@ -142,7 +147,8 @@ Class UserController extends Controller {
     $this->form->addElement('text', 'username', 'Username', ['class' => 'form-control']);
     $this->form->addElement('password', 'password_1', 'Password', ['class' => 'form-control']);
     $this->form->addElement('password', 'password_2', 'Re-enter Password', ['class' => 'form-control']);
-    $this->form->addElement('submit', 'btnSubmit', 'Add User', ['class' => 'btn btn-outline-primary']);
+    $this->form->addElement('submit', 'btnSubmit', 'Add User', ['class' => 'btn btn-primary']);
+    $this->form->addElement('button','btnCancel','Cancel',['onClick' => "window.location.href='/user'", 'class' => 'btn btn-outline-primary']);
 
     // Add validation - all fields below are required.
     $this->form->addRule('username', 'Username is required', 'required');
@@ -179,11 +185,15 @@ Class UserController extends Controller {
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
-    $this->assign('op', 'add');
-    $this->assign('object', 'user');
-    $this->assign('form', $renderer->toArray());
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
 
-    $this->display('Form.tpl');
+    $this->assign('pageTitle', 'Add User');
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('op', 'add');
+    $this->assign('formTitle', 'Add User');
+
+    $this->display('UserForm.tpl');
   }
 
   /**
@@ -194,7 +204,8 @@ Class UserController extends Controller {
     $this->form = new HTML_QuickForm('edit_user', 'POST', $this->f3->get('PATH'));
     $this->form->addElement('password', 'password_1', 'New Password', ['class' => 'form-control']);
     $this->form->addElement('password', 'password_2', 'Re-enter Password', ['class' => 'form-control']);
-    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-outline-primary']);
+    $this->form->addElement('submit', 'btnSubmit', 'Save', ['class' => 'btn btn-primary']);
+    $this->form->addElement('button','btnCancel','Cancel',['onClick' => "window.location.href='/user'", 'class' => 'btn btn-outline-primary']);
 
     // Make password 1 and 2 required.
     $this->form->addRule('password_1', 'Please enter a new password', 'required');
@@ -223,11 +234,15 @@ Class UserController extends Controller {
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
-    $this->assign('op', 'edit');
-    $this->assign('object', $this->user->username);
-    $this->assign('form', $renderer->toArray());
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
 
-    $this->display('Form.tpl');
+    $this->assign('pageTitle', 'Edit User: ' . $this->user->username);
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('op', 'edit');
+    $this->assign('formTitle', 'Edit User');
+
+    $this->display('UserForm.tpl');
   }
 
   /**
@@ -237,8 +252,8 @@ Class UserController extends Controller {
   function deleteUser() {
     // Build form.
     $this->form = new HTML_QuickForm('delete_user', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('submit', 'btnSubmit', 'Delete', ['class' => 'btn btn-outline-primary']);
-    $this->form->addElement('button','cancel','Cancel', ['class' => 'btn btn-outline-primary', 'onClick' => "window.location.href = '/user'"]);
+    $this->form->addElement('submit', 'btnSubmit', 'Delete', ['class' => 'btn btn-primary']);
+    $this->form->addElement('button','btnCancel','Cancel',['onClick' => "window.location.href='/user'", 'class' => 'btn btn-outline-primary']);
 
     // Add custom rule, make sure we aren't deleting user id 1 - super user.
     $this->form->registerRule('check_admin_user', 'function', 'validate_user_deletion', $this->validation);
@@ -263,9 +278,13 @@ Class UserController extends Controller {
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    $this->assign('pageTitle', 'Delete User: ' . $this->user->username);
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'delete');
-    $this->assign('object', $this->user->username);
-    $this->assign('form', $renderer->toArray());
+    $this->assign('formTitle', 'Delete User: <em>' . $this->user->username . '</em>');
 
     $this->display('UserForm.tpl');
   }
@@ -276,35 +295,6 @@ Class UserController extends Controller {
   function logout() {
     $this->f3->clear('SESSION.uid');
     $this->f3->reroute('/');
-  }
-
-  /**
-   * Get the fields/elements defined in this form.
-   *
-   * @return array (string)
-   */
-  public function getRenderableElementNames($renderer) {
-    // The _elements list includes some items which should not be
-    // auto-rendered in the loop -- such as "qfKey" and "buttons".  These
-    // items don't have labels.  We'll identify renderable by filtering on
-    // the 'label'.
-    $elementNames = array();
-
-    foreach ($renderer->toArray()['elements'] as $element) {
-      print '<pre>';
-      print_r($element);
-      exit;
-      /** @var HTML_QuickForm_Element $element */
-      $label = $element->getLabel();
-      if (!empty($label)) {
-        $elements[] = [
-          'html' => $element->getSomthing,
-          'label' => $element->getLabel(),
-        ];
-      }
-      print_r($elements);
-    }
-    return $elementNames;
   }
 
   /**
