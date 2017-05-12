@@ -137,7 +137,7 @@ class PageController extends Controller {
       $page->published   = $this->formValues['publish'];
       $page->save();
 
-      Helper::setMessage('Page has been successfully added', 'success');
+      Helper::setMessage('Page has been successfully added!', 'success');
 
       // Lets load up the short title so we can put it in the reroute url.
       $story = new Story();
@@ -145,15 +145,31 @@ class PageController extends Controller {
       // Upon save reroute to the new page.
       $this->f3->reroute( '/' . $this->short_title . '/' . $this->formValues['pageNumber']);
     }
-    // If the form hasn't been submitted render the form.
-    // Create new render obj to render forms
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
-    // The form must accept the renderer to convert it to html
+
+    // New renderer, one that renders the form as a smarty array
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
-    // Assign vars to template
-    $this->assign('form', $renderer->toHtml());
-    // And display it.
-    $this->display('Form.tpl');
+
+    // Check the renderer array for errors
+    $errors = Helper::checkErrors($renderer);
+    // If there are errors pass them to the template in json format.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    // Assign all the vars to the template.
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('pageTitle', 'Add page');
+    $this->assign('op', 'edit');
+    $this->assign('object', 'page');
+    $this->assign('contentTitle', 'Add');
+    $this->display('PageForm.tpl');
   }
 
   /**
@@ -199,20 +215,40 @@ class PageController extends Controller {
       // Save the page.
       $this->page->save();
 
-      Helper::setMessage('Page has been successfully updated', 'success');
+      Helper::setMessage('Page has been successfully updated!', 'success');
 
       // Upon save reroute to the view of current page.
       $this->f3->reroute( '/' . $this->formValues['story'] . '/' . $this->formValues['pageNumber']);
     }
 
-    // Create new render obj to render forms
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
-    // The form must accept the renderer to convert it to html
+    // New renderer, one that renders the form as a smarty array
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
-    // Assign vars to template
-    $this->assign('form', $renderer->toHtml());
-    // And display it.
-    $this->display('Form.tpl');
+
+    // Check the renderer array for errors
+    $errors = Helper::checkErrors($renderer);
+    // If there are errors pass them to the template in json format.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+
+    // Lets load the full story for some extra info.
+    $this->fullStory->load(['sid = ?', $this->page->story_id]);
+
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    // Assign all the vars to the template.
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('pageTitle', 'Edit page');
+    $this->assign('op', 'edit');
+    $this->assign('object', $this->fullStory->title . ': page #' . $this->page->page_number);
+    $this->assign('contentTitle', 'Edit');
+    $this->assign('filename', $this->fullStory->filename);
+    $this->display('PageForm.tpl');
   }
 
   /**
@@ -220,26 +256,46 @@ class PageController extends Controller {
    */
   public function deletePage() {
     // Build form.
-    $this->form = new HTML_QuickForm('deletePage', 'POST', $this->f3->get('PATH'));
-    $this->form->addElement('submit', 'btnSubmit', 'Delete');
-    $this->form->addElement('button','cancel','Cancel','onClick="window.location.href = \'/' . $this->story->short_title . '/' . $this->pageNumber . '\'"');
+
 
     // Process submission.
     if ($this->form->validate()) {
       // Delete page
       $this->page->erase();
       // Success message
-      Helper::setMessage('Page has been successfully deleted', 'success');
+      Helper::setMessage('Page has been successfully deleted!', 'success');
       // Reroute to user page.
       $this->f3->reroute('/' . $this->story->short_title);
     }
 
-    // Display form.
-    $renderer = new HTML_QuickForm_Renderer_Tableless();
+    // New renderer, one that renders the form as a smarty array
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
 
-    $this->assign('form', $renderer->toHtml());
-    $this->display('Form.tpl');
+    // Check the renderer array for errors
+    $errors = Helper::checkErrors($renderer);
+    // If there are errors pass them to the template in json format.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+
+    // Lets load the full story for some extra info.
+    $this->fullStory->load(['sid = ?', $this->page->story_id]);
+
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
+    $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    // Assign all the vars to the template.
+    $this->assign('elements', $rendered['elements']);
+    $this->assign('formAttr', $rendered['attributes']);
+    $this->assign('pageTitle', 'Edit page');
+    $this->assign('op', 'edit');
+    $this->assign('object', $this->fullStory->title . ': page #' . $this->page->page_number);
+    $this->assign('contentTitle', 'Delete');
+    $this->assign('filename', $this->fullStory->filename);
+    $this->display('PageForm.tpl');
   }
 
   /**
@@ -252,54 +308,65 @@ class PageController extends Controller {
     // Generate new form object based on operation.
     if ($op == 'add') {
       $this->form = new HTML_QuickForm('add_page', 'POST', '/page/add');
+      $btnLabel == 'Add';
     }
-    else {
+    elseif ($op == 'edit') {
       $this->form = new HTML_QuickForm('edit_page', 'POST', $this->f3->get('PATH'));
+      $btnLabel == 'Save';
+    }
+    elseif ($op == 'delete') {
+      $this->form = new HTML_QuickForm('deletePage', 'POST', $this->f3->get('PATH'));
+      $btnLabel == 'Delete';
     }
 
-    // Set max file size for upload.
-    $this->form->setMaxFileSize(5242880);
-    // Add form elements.
-    $this->form->addElement('file', 'pagePicture', 'Picture:');
-    $this->form->addElement('textarea', 'description', 'Text:');
+    // These fields only apply to add edit operations.
+    if ($op == 'add' || $op == 'edit') {
+      // Set max file size for upload.
+      $this->form->setMaxFileSize($this->f3->get('maxFileSize'));
+      // Add form elements.
+      $this->form->addElement('file', 'pagePicture', 'Picture', ['class' => 'form-control']);
+      $this->form->addElement('textarea', 'description', 'Text', ['class' => 'form-control']);
 
-    // Load all story titles for select box.
-    $stories = new Story();
-    foreach ($stories->listByTitle() as $story) {
-      $options[$story->id] = $story->title;
+      // Load all story titles for select box.
+      $stories = new Story();
+      foreach ($stories->listByTitle() as $story) {
+        $options[$story->id] = $story->title;
+      }
+
+      $this->form->addElement('select', 'story', 'Select Story', $options, ['class' => 'form-control']);
+      $this->form->addElement('text', 'pageNumber', 'Page Number', ['class' => 'form-control']);
+      $this->form->addElement('radio', 'publish', 'Publish now', 'Yes', true, ['class' => 'form-check-input', 'id' => 'publish1']);
+      $this->form->addElement('radio', 'publish', null, 'No', false, ['class' => 'form-check-input', 'id' => 'publish1']);
+      $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
     }
 
-    $this->form->addElement('select', 'story', 'Select Story:', $options);
-    $this->form->addElement('text', 'pageNumber', 'Page Number:');
-
-    // todo: wire up javascript date picker and hide date if publish now == yes.
-    $this->form->addElement('radio', 'publish', 'Publish now:', 'Yes', true);
-    $this->form->addElement('radio', 'publish', null, 'No', false);
-
-    $this->form->addElement('text', 'date', 'Publish Date:', array('id' => 'datepicker'));
-
-    $this->form->addElement('submit', 'btnSubmit', 'Save');
+    $this->form->addElement('submit', 'btnSubmit', $btnLabel, ['class' => 'btn btn-primary']);
+    $this->form->addElement('button','btnCancel','Cancel',['onClick' => "window.history.back();", 'class' => 'btn btn-outline-primary']);
 
     // Add validation to forms.
-    // Only require a file upload on the add form.
-    if ($op == 'add') {
-      $this->form->addRule('pagePicture', 'File is required', 'uploadedfile');
+    if ($op == 'add' || $op == 'edit') {
+
+      // Only require a file upload on the add form.
+      if ($op == 'add') {
+        $this->form->addRule('pagePicture', 'File is required', 'uploadedfile');
+      }
+
+      // Page number is required.
+      $this->form->addRule('pageNumber', 'Page Number is Required', 'required');
+
+      // Custom validation rules found in \Validation
+      // Page number must be unique to this story.
+      $this->form->registerRule('pageNumberUnique', 'function', 'validatePageNumber', $this->validation);
+      $this->form->addRule('pageNumber', 'Page number already exists.', 'pageNumberUnique', $this->formValues['story']);
+
+      // Picture dimensions must be of specific size before upload.
+      $this->form->registerRule('pictureDimensions', 'function', 'validatePictureDimensions', $this->validation);
+      $ruleMsg = 'Picture Dimensions are too small! Min Width: ' . $this->f3->get('imgLarge') . ' Min Height: ' . $this->f3->get('imgMinHeight');
+      $this->form->addRule('pagePicture', $ruleMsg, 'pictureDimensions');
+
+      // Picture Mime Type must be of type jpg.
+      $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
+      $this->form->addRule('pagePicture', 'Picture file type not supported', 'pictureMimeType');
     }
-
-    $this->form->addRule('pageNumber', 'Page Number is Required', 'required');
-
-    // Custom validation rules found in \Validation
-    // Page number must be unique to this story.
-    $this->form->registerRule('pageNumberUnique', 'function', 'validatePageNumber', $this->validation);
-    $this->form->addRule('pageNumber', 'Page number already exists.', 'pageNumberUnique', $this->formValues['story']);
-
-    // Picture dimensions must be of specific size before upload.
-    $this->form->registerRule('pictureDimensions', 'function', 'validatePictureDimensions', $this->validation);
-    $ruleMsg = 'Picture Dimensions are too small! Min Width: ' . $this->f3->get('imgLarge') . ' Min Height: ' . $this->f3->get('imgMinHeight');
-    $this->form->addRule('pagePicture', $ruleMsg, 'pictureDimensions');
-
-    // Picture Mime Type must be of type jpg.
-    $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
-    $this->form->addRule('pagePicture', 'Picture file type not supported', 'pictureMimeType');
   }
 }

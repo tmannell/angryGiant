@@ -299,7 +299,7 @@ Class StoryController extends Controller {
     }
     elseif ($op == 'delete') {
       $this->form = new HTML_QuickForm('deleteStory', 'POST', $this->f3->get('PATH'));
-      $btnLabel = 'delete';
+      $btnLabel = 'Delete';
     }
 
     // These fields only apply to add and edit operations.
