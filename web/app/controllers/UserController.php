@@ -44,7 +44,7 @@ Class UserController extends Controller {
       $this->formValues = $_POST;
     }
 
-    // If we are loading a form (login, add, edit, delete)
+    // If we are loading login, add, edit, delete forms
     // load the validation object.
     if (Helper::explodePath(3) || Helper::explodePath(2) == 'add' || !Helper::explodePath(2)) {
       $this->validation = new Validation();
@@ -106,23 +106,27 @@ Class UserController extends Controller {
       $this->f3->reroute('/user/' . $this->user->id);
     }
 
+    // New renderer, one that renders the form as a smarty array
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
 
+    // Check the renderer array for errors
     $errors = Helper::checkErrors($renderer);
-
-    // Add all form elements to the template.
+    // If there are errors pass them to the template in json format.
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
 
+    // Assign all the vars to the template.
     $this->assign('pageTitle', 'User Login');
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'login');
-    $this->assign('formTitle', 'Login');
-
+    $this->assign('contentTitle', 'Login');
     $this->display('UserForm.tpl');
   }
 
@@ -133,8 +137,11 @@ Class UserController extends Controller {
    * passes it to a smarty template.
    */
   function viewUser() {
+
+    // Assign vars to template and display.
     $this->assign('pageTitle', 'User: ' . $this->user->username);
     $this->assign('username', $this->user->username);
+    $this->assign('contentTitle', $this->user->username);
     $this->display('View.tpl');
   }
 
@@ -171,28 +178,36 @@ Class UserController extends Controller {
       // Encrypt password for security.
       $user->password = $this->cryptPassword($this->formValues['password_1']);
       $user->save();
+
+      // Display success message.
+      Helper::setMessage("<em>" . $this->formValues['username'] . "</em> created successfully!", 'success');
       // Load the user id and redirect that user page.
       $user->load(["username = ?", $this->formValues['username']]);
       $this->f3->reroute('/user/' . $user->id);
     }
 
+    // New renderer, one that renders the form as a smarty array
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
 
+    // Check the renderer array for errors
     $errors = Helper::checkErrors($renderer);
-
-    // Add all form elements to the template.
+    // If there are errors pass them to the template in json format.
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
 
+    // Assign all the vars to the template.
     $this->assign('pageTitle', 'Add User');
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'add');
-    $this->assign('formTitle', 'Add User');
-
+    $this->assign('object', 'user');
+    $this->assign('contentTitle', 'Add');
     $this->display('UserForm.tpl');
   }
 
@@ -220,28 +235,33 @@ Class UserController extends Controller {
       $this->user->save();
 
       // Set success message in session var
-      Helper::setMessage('Password successfully updated', 'success');
+      Helper::setMessage('Password updated successfully!', 'success');
       // Reroute to user view page.
       $this->f3->reroute('/user/' . $this->uid);
     }
 
+    // New renderer, one that renders the form as a smarty array
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
 
+    // Check the renderer array for errors
     $errors = Helper::checkErrors($renderer);
-
-    // Add all form elements to the template.
+    // If there are errors pass them to the template in json format.
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
 
+    // Assign all the vars to the template.
     $this->assign('pageTitle', 'Edit User: ' . $this->user->username);
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'edit');
-    $this->assign('formTitle', 'Edit User');
-
+    $this->assign('object', $this->user->username);
+    $this->assign('contentTitle', 'Change password for');
     $this->display('UserForm.tpl');
   }
 
@@ -264,28 +284,33 @@ Class UserController extends Controller {
       // Delete user
       $this->user->erase();
       // Success message
-      Helper::setMessage('User has been successfully deleted', 'success');
+      Helper::setMessage('User has been successfully deleted!', 'success');
       // Reroute to user page.
       $this->f3->reroute('/user');
     }
 
+    // New renderer, one that renders the form as a smarty array
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
 
+    // Check the renderer array for errors
     $errors = Helper::checkErrors($renderer);
-
-    // Add all form elements to the template.
+    // If there are errors pass them to the template in json format.
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
 
+    // Assign all the vars to the template.
     $this->assign('pageTitle', 'Delete User: ' . $this->user->username);
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'delete');
-    $this->assign('formTitle', 'Delete User: <em>' . $this->user->username . '</em>');
-
+    $this->assign('object', $this->user->username);
+    $this->assign('contentTitle', 'Delete');
     $this->display('UserForm.tpl');
   }
 

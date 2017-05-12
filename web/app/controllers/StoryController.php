@@ -42,7 +42,7 @@ Class StoryController extends Controller {
       $this->formValues = $_POST;
     }
 
-    // If we are loading a form (add, edit, delete)
+    // If we are loading a add, edit, delete form
     // load the validation object.
     $op = Helper::explodePath(2);
     if ($op = 'add' || $op == 'edit' || $op == 'delete') {
@@ -126,24 +126,29 @@ Class StoryController extends Controller {
       // Upon save reroute to new story.
       $this->f3->reroute('/' . $story->get('_id'));
     }
-    // If the form hasn't been submitted render the form.
-    // Create new render obj to render forms
+
+    // New renderer, one that renders the form as a smarty array
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
 
+    // Check the renderer array for errors
     $errors = Helper::checkErrors($renderer);
-
-    // Add all form elements to the template.
+    // If there are errors pass them to the template in json format.
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    // Assign all the vars to the template.
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('pageTitle', 'Add Story');
     $this->assign('op', 'add');
-    $this->assign('formTitle', 'Add <em>story</em>');
-
+    $this->assign('object', 'story');
+    $this->assign('contentTitle', 'Add');
     $this->display('StoryForm.tpl');
   }
 
@@ -188,29 +193,33 @@ Class StoryController extends Controller {
       $this->story->save();
     }
 
-    // If the form hasn't been submitted render the form.
-    // Create new render obj to render forms
+    // New renderer, one that renders the form as a smarty array
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
     $this->form->accept($renderer);
 
+    // Check the renderer array for errors
     $errors = Helper::checkErrors($renderer);
-
-    // Add all form elements to the template.
+    // If there are errors pass them to the template in json format.
     if (!empty($errors)) {
       $this->assign('errors', json_encode($errors));
     }
-
-    $fullStory = $this->f3->get('fullStory');
-    $fullStory->load(['sid = ? or short_title = ?', $this->identifier, $this->identifier ]);
-
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    // Let's load the picture to get the filename.
+    $picture = new Picture();
+    $picture->load(['id = ?', $this->story->picture_id]);
+
+    // Assign all the vars to the template.
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('pageTitle', 'Edit Story: ' . $this->story->title);
     $this->assign('op', 'edit');
-    $this->assign('formTitle', 'Edit <em>story</em>');
-    $this->assign('filename', $fullStory->filename);
-
+    $this->assign('object', $this->story->title);
+    $this->assign('contentTitle', 'Edit');
+    $this->assign('filename', $picture->filename);
     $this->display('StoryForm.tpl');
   }
 
@@ -242,17 +251,33 @@ Class StoryController extends Controller {
       $this->assign('errors', json_encode($errors));
     }
 
-    $fullStory = $this->f3->get('fullStory');
-    $fullStory->load(['sid = ? or short_title = ?', $this->identifier, $this->identifier ]);
+    // New renderer, one that renders the form as a smarty array
+    $renderer = new HTML_QuickForm_Renderer_ArraySmarty($this->smarty);
+    // Pass the form through the renderer.
+    $this->form->accept($renderer);
 
+    // Check the renderer array for errors
+    $errors = Helper::checkErrors($renderer);
+    // If there are errors pass them to the template in json format.
+    if (!empty($errors)) {
+      $this->assign('errors', json_encode($errors));
+    }
+    // Finally lets get this rendered array and modify it slightly
+    // so it's easier to use the vars in the template.
     $rendered = Helper::modifyRenderedOutput($renderer->toArray());
+
+    // Let's load the picture to get the filename.
+    $picture = new Picture();
+    $picture->load(['id = ?', $this->story->picture_id]);
+
+    // Assign all the vars to the template.
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('pageTitle', 'Delete Story: ' . $this->story->title);
     $this->assign('op', 'delete');
-    $this->assign('formTitle', 'Delete story: <em>' . $fullStory->title . '</em>');
-    $this->assign('filename', $fullStory->filename);
-
+    $this->assign('object', $this->story->title);
+    $this->assign('contentTitle', 'Delete');
+    $this->assign('filename', $picture->filename);
     $this->display('StoryForm.tpl');
   }
 

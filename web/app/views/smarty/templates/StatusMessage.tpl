@@ -1,4 +1,4 @@
-{extends file="Navigation.tpl"}
+{extends file="Header.tpl"}
 {block name="message"}
     {if !empty($smarty.session.success)}
       {foreach $smarty.session.success as $msg}

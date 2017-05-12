@@ -1,9 +1,7 @@
 {extends file="StatusMessage.tpl"}
 {block name="content"}
-  <div id="form-title">{$formTitle}</div>
     <form {$formAttr}>
       <div class="row">
-
         {if $op == 'add' || $op == 'edit'}
           <div class="col-sm-4 offset-sm-2">
             <div id="title" class="form-group">
@@ -36,7 +34,7 @@
         {/if}
         {if $op == 'edit' || $op == 'delete'}
           <div class="col-sm-4 {if $op == 'delete'}offset-sm-2{/if}">
-            <div id="title-page-image"><img src="/pictures/thumbnail/{$filename}" alt="$title" /></div>
+            <div class="title-page-thumb" ><img src="/pictures/thumbnail/{$filename}" alt="$title" /></div>
           </div>
         {/if}
       </div>

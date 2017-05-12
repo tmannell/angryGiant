@@ -1,9 +1,14 @@
-#form-title {
+#header {
     padding:5px 75px;
     background-color:lightpink;
     border:1px solid deeppink;
     margin-bottom:25px;
     font-size:1.5em;
+}
+
+.required {
+    font-weight:bold;
+    color:red;
 }
 
 #submit-btns {
@@ -12,4 +17,8 @@
 
 .form-group {
     overflow:hidden;
+}
+
+.title-page-thumb img {
+ border-radius: 5px;
 }

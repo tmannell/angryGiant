@@ -5,6 +5,7 @@
 
 <body>
 {block name=navigation}{/block}
+{block name=header}{/block}
 {block name=message}{/block}
 {block name=content}{/block}
 </body>

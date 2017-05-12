@@ -1,12 +1,12 @@
 {extends file="StatusMessage.tpl"}
 {block name="content"}
-  <div id="form-title">{$formTitle}</div>
   <div class="col-sm-4 offset-sm-4">
     <form {$formAttr}>
       {foreach $elements as $element}
         {if !preg_match('/^btn/', $element.name)}
           <div id="{$element.name}" class="form-group">
             <label for="{$element.name}" class="col-form-label">{$element.label}</label>
+            {if $element.required == 1}<span class="required">*</span>{/if}
             {$element.html}
           </div>
         {/if}

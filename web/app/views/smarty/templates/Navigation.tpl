@@ -11,6 +11,10 @@
         <li class="nav-item active">
           <a class="nav-link" href="/stories">Stories <span class="sr-only">(current)</span></a>
         </li>
+        {*TODO: should only appear when logged in.*}
+        <li class="nav-item-active">
+          <a class="nav-link" href="/logout">logout</a><span class="sr-only">(current)</span></a>
+        </li>
       </ul>
       <form class="form-inline my-2 my-lg-0">
         <input class="form-control mr-sm-2" type="text" placeholder="Search">
