@@ -126,6 +126,7 @@ class Setup extends Controller {
       "CREATE TABLE IF NOT EXISTS stories (
           id          INTEGER PRIMARY KEY AUTOINCREMENT,
           title       TEXT NOT NULL,
+          authors     TEXT NULL COLLATE NOCASE,
           short_title TEXT NOT NULL UNIQUE COLLATE NOCASE,
           picture_id  INTEGER NOT NULL,
           post_date   TEXT,
