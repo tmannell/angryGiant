@@ -16,30 +16,8 @@
     var errors = {$errors}
     {literal}
       $(document).ready(function() {
-          highlightErrors()
-
-          $(".publish input:radio").click(function() {
-
-              if ($(this).val() !== '1') {
-                      $('#date').fadeIn('slow')
-              }
-              else if($(this).val() === '1') {
-                  $('#date').fadeOut('slow');
-              }
-
-          });
+          highlightErrors(errors)
       });
-
-      function highlightErrors() {
-          $.each(errors, function(key, value) {
-              if (key === 'password_1') {
-                  $("#password_1, #password_2").addClass(value);
-              }
-              else {
-                  $("#" + key).addClass(value);
-              }
-          });
-      }
     {/literal}
   </script>
 {/block}

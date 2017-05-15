@@ -19,6 +19,10 @@
               <span class="required">*</span>
               {$elements.titlePage.html}
             </div>
+            <div id="authors" class="form-group">
+              <label>{$elements.authors.label}</label>
+              {$elements.authors.html}
+            </div>
             <div id="publish" class="form-group">
               {foreach $elements.publish as $radio}
                 {if $radio.label != ''}
@@ -56,32 +60,12 @@
     var errors = {$errors}
     {literal}
       $(document).ready(function() {
-          highlightErrors()
+          highlightErrors(errors);
+          addCalender();
           $(".publish input:radio").click(function() {
-              if ($(this).val() !== '1') {
-                  $('#date').fadeIn('slow')
-              }
-              else if($(this).val() === '1') {
-                  $('#date').fadeOut('slow');
-              }
-          });
-
-          var picker = new Pikaday({
-              field: $('#datepicker')[0],
-              format: 'MMM-DD-YYYY',
+              showHideField(this, '#date');
           });
       });
-
-      function highlightErrors() {
-          $.each(errors, function(key, value) {
-              if (key === 'password_1') {
-                  $("#password_1, #password_2").addClass(value);
-              }
-              else {
-                  $("#" + key).addClass(value);
-              }
-          });
-      }
     {/literal}
   </script>
 {/block}

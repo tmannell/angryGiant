@@ -62,61 +62,18 @@
     var errors = {$errors}
     {literal}
       $(document).ready(function() {
-          highlightErrors();
-          getPageNumbers();
-          $(".publish input:radio").click(function() {
-              if ($(this).val() !== '1') {
-                  $('#date').fadeIn('slow')
-              }
-              else if($(this).val() === '1') {
-                  $('#date').fadeOut('slow');
-              }
+          $(document).ready(function() {
+              highlightErrors(errors);
+              addCalender();
+              $(".publish input:radio").click(function() {
+                  showHidefield(this, '#date');
+              });
           });
 
           $('#story select').change(function() {
               getPageNumbers();
           })
-
-          var picker = new Pikaday({
-              field: $('#datepicker')[0],
-              format: 'MMM-DD-YYYY',
-          });
       });
-
-      function getPageNumbers() {
-          var sid = $('#story select').val();
-          if (sid !== '0') {
-              $.ajax({
-                  type: "POST",
-                  data: {'sid': sid},
-                  url: "/fetch/page-numbers",
-                  dataType: 'json',
-                  success: function (pageNumbers) {
-                      $("#story select option[value='0']").remove();
-                      var pageSelect = $('#page-number-select');
-                      pageSelect.empty();
-                      $(pageNumbers).each(function (index, value) {
-                          var option = $("<option/>").attr("value", value).text(value);
-                          pageSelect.append(option);
-                      });
-                  },
-                  error: function () {
-                      alert('Something happened when retrieving page numbers.');
-                  }
-              });
-          }
-      }
-
-      function highlightErrors() {
-          $.each(errors, function(key, value) {
-              if (key === 'password_1') {
-                  $("#password_1, #password_2").addClass(value);
-              }
-              else {
-                  $("#" + key).addClass(value);
-              }
-          });
-      }
     {/literal}
   </script>
 {/block}
