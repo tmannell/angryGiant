@@ -124,7 +124,7 @@ Class StoryController extends Controller {
       Helper::setMessage('Story has been successfully added', 'success');
 
       // Upon save reroute to new story.
-      $this->f3->reroute('/' . $story->get('_id'));
+      $this->f3->reroute('/' . $this->formValues['shortTitle']);
     }
 
     // New renderer, one that renders the form as a smarty array
@@ -191,6 +191,11 @@ Class StoryController extends Controller {
       $this->story->post_date   = ($this->formValues['publish'] == true) ? trim($this->formValues['date']) : null;
       $this->story->published   = $this->formValues['publish'];
       $this->story->save();
+
+      Helper::setMessage('Story has been successfully saved', 'success');
+
+      // Upon save reroute to new story.
+      $this->f3->reroute('/' . $this->formValues['shortTitle']);
     }
 
     // New renderer, one that renders the form as a smarty array
@@ -311,11 +316,8 @@ Class StoryController extends Controller {
       // Set max size for file upload
       $this->form->setMaxFileSize($this->f3->get('maxFileSize'));
       $this->form->addElement('file', 'titlePage', 'Title Page', ['class' => 'form-control']);
-
-      // todo: wire up javascript date picker and hide date if publish now == yes.
       $this->form->addElement('radio', 'publish', 'Publish', 'Now', true, ['class' => 'form-check-input', 'id' => 'publish1']);
       $this->form->addElement('radio', 'publish', null, 'Later', false, ['class' => 'form-check-input', 'id'    => 'publish2']);
-
       $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
     }
 
@@ -328,6 +330,7 @@ Class StoryController extends Controller {
       // Add validation.
       $this->form->addRule('title', 'Title is required', 'required');
       $this->form->addRule('shortTitle', 'Require field', 'required');
+
       // Only require a file upload on the add form.
       if ($op == 'add') {
         $this->form->addRule('titlePage', 'File is required', 'uploadedfile');
@@ -342,6 +345,8 @@ Class StoryController extends Controller {
       // Picture Mime Type must be of type jpg.
       $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
       $this->form->addRule('titlePage', 'Picture file type not supported', 'pictureMimeType');
+
+      // TODO: make sure short-title is unique before submission
     }
   }
 }
