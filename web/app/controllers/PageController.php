@@ -166,7 +166,7 @@ class PageController extends Controller {
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('pageTitle', 'Add page');
-    $this->assign('op', 'edit');
+    $this->assign('op', 'add');
     $this->assign('object', 'page');
     $this->assign('contentTitle', 'Add');
     $this->display('PageForm.tpl');
@@ -336,8 +336,8 @@ class PageController extends Controller {
 
       $this->form->addElement('select', 'story', 'Select story', $options, ['class' => 'custom-select']);
       $this->form->addElement('select', 'pageNumber', 'Page Number', ['You must choose a story first'], ['id' => 'page-number-select', 'class' => 'custom-select']);
-      $this->form->addElement('radio', 'publish', 'Publish now', 'Yes', true, ['class' => 'form-check-input', 'id' => 'publish1']);
-      $this->form->addElement('radio', 'publish', null, 'No', false, ['class' => 'form-check-input', 'id' => 'publish1']);
+      $this->form->addElement('radio', 'publish', 'Publish', 'Now', true, ['class' => 'form-check-input', 'id' => 'publish1']);
+      $this->form->addElement('radio', 'publish', null, 'Later', false, ['class' => 'form-check-input', 'id' => 'publish1']);
       $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
     }
 
