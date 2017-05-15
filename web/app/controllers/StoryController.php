@@ -113,12 +113,13 @@ Class StoryController extends Controller {
 
       // Save new story obj in db.
       $story = new Story();
-      $story->title = $this->formValues['title'];
+      $story->title       = $this->formValues['title'];
       $story->short_title = $this->formValues['shortTitle'];
-      $story->picture_id = $picture->get('_id');
-      $story->created_by = $this->f3->get('SESSION.uid');
-      $story->post_date = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : null;
-      $story->published = $this->formValues['publish'];
+      $story->authors     = trim($this->formValues['authors']);
+      $story->picture_id  = $picture->get('_id');
+      $story->created_by  = $this->f3->get('SESSION.uid');
+      $story->post_date   = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : null;
+      $story->published   = $this->formValues['publish'];
       $story->save();
 
       Helper::setMessage('Story has been successfully added', 'success');
@@ -187,6 +188,7 @@ Class StoryController extends Controller {
 
       $this->story->title       = $this->formValues['title'];
       $this->story->short_title = $this->formValues['shortTitle'];
+      $this->story->authors     = trim($this->formValues['authors']);
       $this->story->created_by  = $this->f3->get('SESSION.uid');
       $this->story->post_date   = ($this->formValues['publish'] == true) ? trim($this->formValues['date']) : null;
       $this->story->published   = $this->formValues['publish'];
@@ -311,6 +313,7 @@ Class StoryController extends Controller {
     if ($op == 'add' || $op == 'edit') {
       // Add form elements
       $this->form->addElement('text', 'title', 'Title', ['class' => 'form-control']);
+      $this->form->addElement('text', 'authors', 'Author(s)', ['class' => 'form-control']);
       $this->form->addElement('text', 'shortTitle', 'URL Friendly Title', ['class' => 'form-control']);
 
       // Set max size for file upload
