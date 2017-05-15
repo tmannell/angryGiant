@@ -19,6 +19,14 @@
     overflow:hidden;
 }
 
-.title-page-thumb img {
+.thumbnail {
  border-radius: 5px;
+}
+
+#page-number select{
+    width:100%
+}
+
+#story select {
+    width:100%
 }
