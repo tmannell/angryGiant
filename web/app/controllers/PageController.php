@@ -63,7 +63,7 @@ class PageController extends Controller {
     // If we are not adding a new page lets load up the
     // current page obj and current story obj and store
     // the page number and story identifier in a separate var.
-    if (Helper::explodePath(2) != 'add') {
+    if (Helper::explodePath(2) != 'add' && Helper::explodePath(1) != 'fetch') {
       $this->pageNumber = Helper::explodePath(2);
       $this->identifier = Helper::explodePath(1);
 
@@ -308,15 +308,15 @@ class PageController extends Controller {
     // Generate new form object based on operation.
     if ($op == 'add') {
       $this->form = new HTML_QuickForm('add_page', 'POST', '/page/add');
-      $btnLabel == 'Add';
+      $btnLabel = 'Add';
     }
     elseif ($op == 'edit') {
       $this->form = new HTML_QuickForm('edit_page', 'POST', $this->f3->get('PATH'));
-      $btnLabel == 'Save';
+      $btnLabel = 'Save';
     }
     elseif ($op == 'delete') {
       $this->form = new HTML_QuickForm('deletePage', 'POST', $this->f3->get('PATH'));
-      $btnLabel == 'Delete';
+      $btnLabel = 'Delete';
     }
 
     // These fields only apply to add edit operations.
@@ -329,12 +329,13 @@ class PageController extends Controller {
 
       // Load all story titles for select box.
       $stories = new Story();
+      $options[0] = 'Select Story';
       foreach ($stories->listByTitle() as $story) {
         $options[$story->id] = $story->title;
       }
 
-      $this->form->addElement('select', 'story', 'Select Story', $options, ['class' => 'form-control']);
-      $this->form->addElement('text', 'pageNumber', 'Page Number', ['class' => 'form-control']);
+      $this->form->addElement('select', 'story', 'Select story', $options, ['class' => 'custom-select']);
+      $this->form->addElement('select', 'pageNumber', 'Page Number', ['You must choose a story first'], ['id' => 'page-number-select', 'class' => 'custom-select']);
       $this->form->addElement('radio', 'publish', 'Publish now', 'Yes', true, ['class' => 'form-check-input', 'id' => 'publish1']);
       $this->form->addElement('radio', 'publish', null, 'No', false, ['class' => 'form-check-input', 'id' => 'publish1']);
       $this->form->addElement('text', 'date', 'Publish Date', ['class' => 'form-control', 'id' => 'datepicker']);
@@ -351,8 +352,11 @@ class PageController extends Controller {
         $this->form->addRule('pagePicture', 'File is required', 'uploadedfile');
       }
 
+      $this->form->addRule('story', 'You must select a story', 'required');
+      $this->form->addRule('story', 'You must select a story', 'nonzero');
       // Page number is required.
-      $this->form->addRule('pageNumber', 'Page Number is Required', 'required');
+      $this->form->addRule('pageNumber', 'Page number is required', 'required');
+      $this->form->addRule('pageNumber', 'Page number is required', 'nonzero');
 
       // Custom validation rules found in \Validation
       // Page number must be unique to this story.
@@ -367,6 +371,27 @@ class PageController extends Controller {
       // Picture Mime Type must be of type jpg.
       $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
       $this->form->addRule('pagePicture', 'Picture file type not supported', 'pictureMimeType');
+    }
+  }
+
+  function getPageNumbers() {
+    if (isset($_POST['sid'])) {
+      $sid = $_POST['sid'];
+      $page = new Page();
+      $pages = $page->allPages($sid, 'page_number ASC');
+      $i = 0;
+      foreach ($pages as $page) {
+        $i++;
+        if ($page->page_number == $i) {
+          continue;
+        }
+        $options[$i] = $i;
+      }
+      $options[$i + 1] = $i + 1;
+      echo '[' . implode(',', $options) . ']';
+    }
+    else {
+      $this->f3->error(404);
     }
   }
 }
