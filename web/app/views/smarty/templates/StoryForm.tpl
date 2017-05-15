@@ -6,14 +6,17 @@
           <div class="col-sm-4 offset-sm-2">
             <div id="title" class="form-group">
               <label>{$elements.title.label}</label>
+              <span class="required">*</span>
               {$elements.title.html}
             </div>
             <div id="short-title" class="form-group">
               <label>{$elements.shortTitle.label}</label>
+              <span class="required">*</span>
               {$elements.shortTitle.html}
             </div>
             <div id="title-page" class="form-group">
               <label>{$elements.titlePage.label}</label>
+              <span class="required">*</span>
               {$elements.titlePage.html}
             </div>
             <div id="publish" class="form-group">
@@ -34,7 +37,7 @@
         {/if}
         {if $op == 'edit' || $op == 'delete'}
           <div class="col-sm-4 {if $op == 'delete'}offset-sm-2{/if}">
-            <div class="title-page-thumb" ><img src="/pictures/thumbnail/{$filename}" alt="$title" /></div>
+            <div id="story-thumb"><img class=".thumbnail" src="/pictures/thumbnail/{$filename}" alt="$title" /></div>
           </div>
         {/if}
       </div>

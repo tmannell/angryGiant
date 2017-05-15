@@ -1,6 +1,5 @@
 {extends file="StatusMessage.tpl"}
 {block name="content"}
-  <div id="form-title" >{$formTitle}</div>
   <div class="col-sm-4 offset-sm-4">
     <form {$formAttr}>
       {foreach $elements as $element}
