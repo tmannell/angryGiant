@@ -95,7 +95,7 @@ class Setup extends Controller {
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('op', 'install');
-    $this->assign('formTitle', 'Install <em>AngryGiant</em>');
+    $this->assign('contentTitle', 'Install AngryGiant');
 
     $this->display('InstallForm.tpl');
   }
