@@ -5,6 +5,7 @@
       {foreach $elements as $element}
           <div id="{$element.name}" class="form-group">
             <label for="{$element.name}" class="col-form-label">{$element.label}</label>
+            {if $element.required == 1}<span class="required">*</span>{/if}
             {$element.html}
           </div>
       {/foreach}
