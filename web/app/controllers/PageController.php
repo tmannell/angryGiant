@@ -143,7 +143,7 @@ class PageController extends Controller {
       $story = new Story();
       $story->load(['id = ?', $this->formValues['story']]);
       // Upon save reroute to the new page.
-      $this->f3->reroute( '/' . $this->short_title . '/' . $this->formValues['pageNumber']);
+      $this->f3->reroute( '/' . $this->identifier . '/' . $this->formValues['pageNumber']);
     }
 
     // New renderer, one that renders the form as a smarty array
@@ -256,8 +256,7 @@ class PageController extends Controller {
    */
   public function deletePage() {
     // Build form.
-
-
+    $this->pageForm('delete');
     // Process submission.
     if ($this->form->validate()) {
       // Delete page
@@ -291,7 +290,7 @@ class PageController extends Controller {
     $this->assign('elements', $rendered['elements']);
     $this->assign('formAttr', $rendered['attributes']);
     $this->assign('pageTitle', 'Edit page');
-    $this->assign('op', 'edit');
+    $this->assign('op', 'delete');
     $this->assign('object', $this->fullStory->title . ': page #' . $this->page->page_number);
     $this->assign('contentTitle', 'Delete');
     $this->assign('filename', $this->fullStory->filename);
