@@ -16,6 +16,8 @@ class Controller extends Smarty {
    */
   protected $db;
 
+  protected $fullStory;
+
   /**
    * Controller constructor.
    *
@@ -39,7 +41,7 @@ class Controller extends Smarty {
 
     $this->caching = false;       // set Smarty caching off by default
 
-    $this->f3->set('fullStory', new DB\SQL\MAPPER($this->db, 'fullStory'));
+    $this->fullStory = new DB\SQL\MAPPER($this->db, 'fullStory');
   }
 
   /**
