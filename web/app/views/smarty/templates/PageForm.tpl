@@ -62,17 +62,21 @@
     var errors = {$errors}
     {literal}
       $(document).ready(function() {
-          $(document).ready(function() {
-              highlightErrors(errors);
-              addCalender();
-              $(".publish input:radio").click(function() {
-                  showHidefield(this, '#date');
-              });
-          });
+        // Highlights forms if they fail validation.
+        highlightErrors(errors);
 
-          $('#story select').change(function() {
-              getPageNumbers();
-          })
+        // Adds calendar widget to date field.
+        addCalender();
+
+        // Show/Hides the #date field.
+        $(".publish input:radio").click(function() {
+          showHideField(this, '#date');
+        });
+
+        // Ajax gets page numbers from specific story.
+        $('#story select').change(function() {
+          getPageNumbers();
+        });
       });
     {/literal}
   </script>
