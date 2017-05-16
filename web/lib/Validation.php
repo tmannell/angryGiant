@@ -141,4 +141,14 @@ class Validation extends Controller {
     $page->load(['story_id = ? and page_number = ?', $storyId, $pageNumber]);
     return ($page->id) ? false : true;
   }
+
+  function validateShortTitle($shortTitle, $identifier) {
+    if (!isset($identifier)) {
+      $story = new Story;
+      $story->load(['short_title = ?', $shortTitle]);
+      return ($story->id) ? false : true;
+    }
+
+    return true;
+  }
 }
