@@ -169,7 +169,7 @@ class Setup extends Controller {
       "CREATE VIEW fullStory AS
         SELECT pictures.filename,
                stories.id as sid, stories.title, stories.short_title, stories.post_date as story_post_date, stories.created_by as story_uid, stories.published as story_published,
-               pages.id as pgid, pages.description, pages.page_number, pages.post_date as page_post_date, pages.created_by as page_uid, pages.published as page_published
+               stories.authors, pages.id as pgid, pages.description, pages.page_number, pages.post_date as page_post_date, pages.created_by as page_uid, pages.published as page_published
         FROM stories
         INNER JOIN pictures on stories.picture_id = pictures.id
         LEFT JOIN pages on stories.id = pages.story_id"
