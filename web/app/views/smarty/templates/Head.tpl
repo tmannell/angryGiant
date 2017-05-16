@@ -6,9 +6,10 @@
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
   <title>{$pageTitle}</title>
 
-  <!-- Bootstrap -->
+  <!-- Addon CSS -->
   <link href="/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/pikaday.css" rel="stylesheet">
+  <link href="/css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
   <!-- Custom CSS -->
   <link href="/css/angrygiant.css" rel="stylesheet">
   <!-- Javascript libraries -->
