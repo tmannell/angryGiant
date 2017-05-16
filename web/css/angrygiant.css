@@ -27,6 +27,29 @@
     width:100%
 }
 
+.story-title {
+    width: 300px;
+    background-color: #d2ffca;
+    margin: 1px auto;
+    border-radius:5px;
+}
+
 #story select {
-    width:100%
+    width:100%;
+}
+
+.story-title {
+    padding: 5px 10px;
+}
+
+#gallery {
+    margin-top:50px;
+}
+
+.action-icons {
+    margin-top: 10px;
+}
+
+.action-icons a {
+    margin:0 3px;
 }
