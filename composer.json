@@ -8,7 +8,8 @@
         "eventviva/php-image-resize": "^1.6",
         "twbs/bootstrap": "4.0.0-alpha.6",
         "components/jquery": "^3.2",
-        "etdsolutions/moment": "^2.15"
+        "etdsolutions/moment": "^2.15",
+        "components/font-awesome": "^4.7"
     },
     "scripts": {
         "post-update-cmd": [
@@ -17,7 +18,8 @@
             "ln -sf ../../vendor/components/jquery/jquery.min.js web/js/jquery.min.js",
 	        "ln -sf ../../vendor/rhubarbphp/pikaday/pikaday.js web/js/pikaday.js",
             "ln -sf ../../vendor/rhubarbphp/pikaday/css/pikaday.css web/css/pikaday.css",
-            "ln -sf ../../vendor/etdsolutions/moment/moment.min.js web/js/moment.min.js"
+            "ln -sf ../../vendor/etdsolutions/moment/moment.min.js web/js/moment.min.js",
+            "ln -sf ../../vendor/components/font-awesome web/css/font-awesome"
         ]
     }
 }
