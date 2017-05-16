@@ -72,7 +72,17 @@ Class StoryController extends Controller {
   function viewStory() {
     // Make sure the story is set to publish before displaying.
     if ($this->story->published == 1) {
+
+      $picture = new Picture();
+      $picture->load(['id = ?', $this->story->picture_id]);
+      $page = $this->db->exec('SELECT MIN(page_number) as firstPage FROM pages WHERE story_id = ?', $this->story->id);
+
       $this->assign('story', $this->story);
+      $this->assign('role', $this->getAuthorizationStatus());
+      $this->assign('contentTitle', $this->story->title);
+      $this->assign('pageTitle', $this->story->title);
+      $this->assign('firstPage', $page[0]['firstPage']);
+      $this->assign('filename', $picture->filename);
       $this->display('viewStory.tpl');
     }
     else {
@@ -83,8 +93,11 @@ Class StoryController extends Controller {
 
   function viewStories() {
     $story = new Story();
-    $stories = $story->allStories(true, 'post_date desc');
-    $this->assign('story', $stories);
+    $stories = $this->fullStory->select('*', 'story_published = 1', ['order' => 'post_date DESC']);
+    $this->assign('role', $this->getAuthorizationStatus());
+    $this->assign('contentTitle', 'Stories');
+    $this->assign('pageTitle', 'All Stories');
+    $this->assign('stories', $stories);
     $this->display('viewStories.tpl');
   }
 
@@ -164,6 +177,7 @@ Class StoryController extends Controller {
       [
         'title'      => $this->story->title,
         'shortTitle' => $this->story->short_title,
+        'authors'    => $this->story->authors,
         'publish'    => $this->story->published,
         'date'       => $this->story->post_date,
       ]
@@ -186,8 +200,8 @@ Class StoryController extends Controller {
         $picture->save();
       }
 
-      $this->story->title       = $this->formValues['title'];
-      $this->story->short_title = $this->formValues['shortTitle'];
+      $this->story->title       = trim($this->formValues['title']);
+      $this->story->short_title = trim($this->formValues['shortTitle']);
       $this->story->authors     = trim($this->formValues['authors']);
       $this->story->created_by  = $this->f3->get('SESSION.uid');
       $this->story->post_date   = ($this->formValues['publish'] == true) ? trim($this->formValues['date']) : null;
@@ -340,6 +354,8 @@ Class StoryController extends Controller {
       }
 
       // Add custom validation rules found in \Validation.
+      $this->form->registerRule('uniqueShortTitle', 'function', 'validateShortTitle', $this->validation);
+      $this->form->addRule('shortTitle', 'Short Title already exists', 'uniqueShortTitle', $this->identifier);
       // Picture dimensions must be specific size before upload
       $this->form->registerRule('pictureDimensions', 'function', 'validatePictureDimensions', $this->validation);
       $ruleMsg = 'Picture Dimensions are too small! Min Width: ' . $this->f3->get('imgLarge') . ' Min Height: ' . $this->f3->get('imgMinHeight');
@@ -349,7 +365,6 @@ Class StoryController extends Controller {
       $this->form->registerRule('pictureMimeType', 'function', 'validateMimeType', $this->validation);
       $this->form->addRule('titlePage', 'Picture file type not supported', 'pictureMimeType');
 
-      // TODO: make sure short-title is unique before submission
     }
   }
 }
