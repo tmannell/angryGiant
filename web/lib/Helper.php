@@ -76,11 +76,11 @@ Class Helper extends Controller {
     // eventviva/php-image-resize library.
     $picture = new \Eventviva\ImageResize($file['path']);
     $picture->save($f3->get('webroot') . 'pictures/original/' . $filename);
-    $picture->resizeToWidth($f3->get('imgLarge'));
+    $picture->resizeToHeight($f3->get('imgLarge'));
     $picture->save($f3->get('webroot') . 'pictures/large/' . $filename);
-    $picture->resizeToWidth($f3->get('imgMedium'));
+    $picture->resizeToHeight($f3->get('imgMedium'));
     $picture->save($f3->get('webroot') . 'pictures/medium/' . $filename);
-    $picture->resizeToWidth($f3->get('imgThumbnail'));
+    $picture->resizeToHeight($f3->get('imgThumbnail'));
     $picture->save($f3->get('webroot') . 'pictures/thumbnail/' . $filename);
 
     // Return the filename for further use.
