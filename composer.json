@@ -12,14 +12,24 @@
         "components/font-awesome": "^4.7"
     },
     "scripts": {
-        "post-update-cmd": [
+        "post-install-cmd": [
             "ln -sf ../../vendor/twbs/bootstrap/dist/css/bootstrap.min.css web/css/bootstrap.min.css",
             "ln -sf ../../vendor/twbs/bootstrap/dist/js/bootstrap.min.js web/js/bootstrap.min.js",
             "ln -sf ../../vendor/components/jquery/jquery.min.js web/js/jquery.min.js",
-	        "ln -sf ../../vendor/rhubarbphp/pikaday/pikaday.js web/js/pikaday.js",
+	    "ln -sf ../../vendor/rhubarbphp/pikaday/pikaday.js web/js/pikaday.js",
+            "ln -sf ../../vendor/rhubarbphp/pikaday/css/pikaday.css web/css/pikaday.css",
+            "ln -sf ../../vendor/etdsolutions/moment/moment.min.js web/js/moment.min.js",
+            "ln -sf ../../vendor/components/font-awesome web/css/font-awesome"
+        ],
+	"post-update-cmd": [
+            "ln -sf ../../vendor/twbs/bootstrap/dist/css/bootstrap.min.css web/css/bootstrap.min.css",
+            "ln -sf ../../vendor/twbs/bootstrap/dist/js/bootstrap.min.js web/js/bootstrap.min.js",
+            "ln -sf ../../vendor/components/jquery/jquery.min.js web/js/jquery.min.js",
+            "ln -sf ../../vendor/rhubarbphp/pikaday/pikaday.js web/js/pikaday.js",
             "ln -sf ../../vendor/rhubarbphp/pikaday/css/pikaday.css web/css/pikaday.css",
             "ln -sf ../../vendor/etdsolutions/moment/moment.min.js web/js/moment.min.js",
             "ln -sf ../../vendor/components/font-awesome web/css/font-awesome"
         ]
+
     }
 }
