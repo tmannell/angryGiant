@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "35e513c7df20eec4ac961baeb0b83a06",
+    "content-hash": "9bc57b7cee314b56e3e0406dd86065a2",
     "packages": [
         {
             "name": "bcosca/fatfree-core",
-            "version": "3.6.1",
+            "version": "3.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bcosca/fatfree-core.git",
-                "reference": "59f337842a502b69fd5e2de28dce9460d6138fed"
+                "reference": "b35fe7ae88f6f3667c50c36563b50e5a1ec36bb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bcosca/fatfree-core/zipball/59f337842a502b69fd5e2de28dce9460d6138fed",
-                "reference": "59f337842a502b69fd5e2de28dce9460d6138fed",
+                "url": "https://api.github.com/repos/bcosca/fatfree-core/zipball/b35fe7ae88f6f3667c50c36563b50e5a1ec36bb1",
+                "reference": "b35fe7ae88f6f3667c50c36563b50e5a1ec36bb1",
                 "shasum": ""
             },
             "require": {
@@ -35,7 +35,7 @@
             ],
             "description": "A powerful yet easy-to-use PHP micro-framework designed to help you build dynamic and robust Web applications - fast!",
             "homepage": "http://fatfreeframework.com/",
-            "time": "2017-04-02T09:44:00+00:00"
+            "time": "2017-12-31T14:47:39+00:00"
         },
         {
             "name": "components/font-awesome",
@@ -139,16 +139,16 @@
         },
         {
             "name": "eventviva/php-image-resize",
-            "version": "1.6.4",
+            "version": "1.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eventviva/php-image-resize.git",
-                "reference": "7c51c8448a2b23a4d416c86a3f7c2fe1bea14945"
+                "reference": "10c3ca9f58298713599600f358e35fc29599a9d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eventviva/php-image-resize/zipball/7c51c8448a2b23a4d416c86a3f7c2fe1bea14945",
-                "reference": "7c51c8448a2b23a4d416c86a3f7c2fe1bea14945",
+                "url": "https://api.github.com/repos/eventviva/php-image-resize/zipball/10c3ca9f58298713599600f358e35fc29599a9d4",
+                "reference": "10c3ca9f58298713599600f358e35fc29599a9d4",
                 "shasum": ""
             },
             "require": {
@@ -182,7 +182,8 @@
                 "resize",
                 "scale"
             ],
-            "time": "2017-04-20T15:28:31+00:00"
+            "abandoned": "gumlet/php-image-resize",
+            "time": "2017-09-09T04:37:46+00:00"
         },
         {
             "name": "openpsa/quickform",
@@ -227,16 +228,16 @@
         },
         {
             "name": "rhubarbphp/pikaday",
-            "version": "1.5.1",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/RhubarbPHP/Pikaday.git",
-                "reference": "a940d308b9001629f1e5c7207a37fd060042fee3"
+                "reference": "ab31757f655e5a8cceffe7a4458e44d3b3ed24fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/RhubarbPHP/Pikaday/zipball/a940d308b9001629f1e5c7207a37fd060042fee3",
-                "reference": "a940d308b9001629f1e5c7207a37fd060042fee3",
+                "url": "https://api.github.com/repos/RhubarbPHP/Pikaday/zipball/ab31757f655e5a8cceffe7a4458e44d3b3ed24fd",
+                "reference": "ab31757f655e5a8cceffe7a4458e44d3b3ed24fd",
                 "shasum": ""
             },
             "suggest": {
@@ -255,7 +256,7 @@
                 "date",
                 "datepicker"
             ],
-            "time": "2016-11-04T16:38:24+00:00"
+            "time": "2017-10-19T11:24:29+00:00"
         },
         {
             "name": "smarty/smarty",
@@ -312,16 +313,16 @@
         },
         {
             "name": "twbs/bootstrap",
-            "version": "4.0.0-alpha.6",
+            "version": "v3.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twbs/bootstrap.git",
-                "reference": "65ffb1c3b6e94440812a2e228cb8e8be512652ec"
+                "reference": "16b48259a62f576e52c903c476bd42b90ab22482"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/65ffb1c3b6e94440812a2e228cb8e8be512652ec",
-                "reference": "65ffb1c3b6e94440812a2e228cb8e8be512652ec",
+                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/16b48259a62f576e52c903c476bd42b90ab22482",
+                "reference": "16b48259a62f576e52c903c476bd42b90ab22482",
                 "shasum": ""
             },
             "replace": {
@@ -348,18 +349,18 @@
                 }
             ],
             "description": "The most popular front-end framework for developing responsive, mobile first projects on the web.",
-            "homepage": "https://getbootstrap.com",
+            "homepage": "http://getbootstrap.com",
             "keywords": [
                 "JS",
                 "css",
                 "framework",
                 "front-end",
+                "less",
                 "mobile-first",
                 "responsive",
-                "sass",
                 "web"
             ],
-            "time": "2017-01-06T16:41:52+00:00"
+            "time": "2015-06-16T16:13:22+00:00"
         },
         {
             "name": "xfra35/f3-access",
@@ -402,9 +403,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "twbs/bootstrap": 15
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

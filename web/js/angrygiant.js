@@ -26,7 +26,7 @@ function highlightErrors(errors) {
 function showHideField(trigger, target) {
 
     if ($(trigger).val() !== '1') {
-        $(target).fadeIn('slow')
+        $(target).fadeIn('slow');
     }
     else if ($(trigger).val() === '1') {
         $(target).fadeOut('slow');

@@ -41,6 +41,7 @@ class Controller extends Smarty {
 
     $this->caching = false;       // set Smarty caching off by default
 
+    // Why did I do this?  Need call to pull all story info, story and pages.
     $this->fullStory = new DB\SQL\MAPPER($this->db, 'fullStory');
   }
 
@@ -49,8 +50,10 @@ class Controller extends Smarty {
    */
   public function beforeroute() {
     // Assign some global smarty vars
+    $access = $this->getAuthorizationStatus();
 
     $this->assign('siteName', 'Angry Giant');
+    $this->assign('access', $access);
   }
 
   /**

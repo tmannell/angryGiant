@@ -93,7 +93,7 @@ Class StoryController extends Controller {
 
   function viewStories() {
     $story = new Story();
-    $stories = $this->fullStory->select('*', 'story_published = 1', ['order' => 'post_date DESC']);
+    $stories = $story->allStories(true, 'post_date DESC');
     $this->assign('role', $this->getAuthorizationStatus());
     $this->assign('contentTitle', 'Stories');
     $this->assign('pageTitle', 'All Stories');
