@@ -133,7 +133,7 @@ class PageController extends Controller {
       $page->story_id    = $this->formValues['story'];
       $page->page_number = $this->formValues['pageNumber'];
       $page->created_by  = $this->f3->get('SESSION.uid');
-      $page->post_date   = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : null;
+      $page->post_date   = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : date('M-d-Y');
       $page->published   = $this->formValues['publish'];
       $page->save();
 

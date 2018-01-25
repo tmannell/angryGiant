@@ -82,3 +82,15 @@ body a:hover {
 .home-links {
     margin: 25px 0;
 }
+
+.stories-list {
+    height: 208px;
+    padding:4px;
+    background-color:mediumpurple;
+}
+
+.stories-list li {
+    display:inline;
+    padding: 0px 10px;
+    width: 150px;
+}

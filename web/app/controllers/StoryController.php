@@ -92,8 +92,18 @@ Class StoryController extends Controller {
   }
 
   function viewStories() {
-    $story = new Story();
-    $stories = $story->allStories(true, 'post_date DESC');
+    $stories = [];
+    $storyMod = new Story();
+    $storiesRes = $storyMod->allStories(true, 'post_date DESC');
+
+    foreach ($storiesRes as $key => $storyObj) {
+      $story = $storyObj->cast();
+      $picture = new Picture();
+      $picture->load(['id = ?', $story['picture_id']]);
+
+      $story['filename'] = $picture->filename;
+      $stories[] = $story;
+    }
     $this->assign('role', $this->getAuthorizationStatus());
     $this->assign('contentTitle', 'Stories');
     $this->assign('pageTitle', 'All Stories');
@@ -131,7 +141,7 @@ Class StoryController extends Controller {
       $story->authors     = trim($this->formValues['authors']);
       $story->picture_id  = $picture->get('_id');
       $story->created_by  = $this->f3->get('SESSION.uid');
-      $story->post_date   = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : null;
+      $story->post_date   = (trim($this->formValues['date']) != '') ? $this->formValues['date'] : date('M-d-Y');
       $story->published   = $this->formValues['publish'];
       $story->save();
 
