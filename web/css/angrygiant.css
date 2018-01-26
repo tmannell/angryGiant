@@ -94,3 +94,41 @@ body a:hover {
     padding: 0px 10px;
     width: 150px;
 }
+
+.img-cluster {
+  display: table;
+  margin: 0 auto;
+}
+
+.story-thumb-overlay {
+  opacity: 0.5;
+  color:#000;
+  display: table-caption;
+  caption-side: bottom;
+  height: 100%;
+}
+
+.overlay-title {
+  float:left;
+  position:relative;
+  text-align: left;
+  font-size: .8em;
+  font-weight: bold;
+  margin:0px 5px;
+  color: whitesmoke;
+}
+.overlay-nav {
+  float:right;
+  position:relative;
+  text-align:center;
+  font-size: .8em;
+  font-weight:bold;
+}
+
+.ibrowse {
+  margin-right:5px;
+}
+
+.istart {
+  margin-left:5px;
+}
