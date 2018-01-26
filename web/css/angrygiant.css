@@ -83,18 +83,6 @@ body a:hover {
     margin: 25px 0;
 }
 
-.stories-list {
-    height: 208px;
-    padding:4px;
-    background-color:mediumpurple;
-}
-
-.stories-list li {
-    display:inline;
-    padding: 0px 10px;
-    width: 150px;
-}
-
 .img-cluster {
   display: table;
   margin: 0 auto;
@@ -105,7 +93,6 @@ body a:hover {
   color:#000;
   display: table-caption;
   caption-side: bottom;
-  height: 100%;
 }
 
 .overlay-title {
@@ -114,7 +101,6 @@ body a:hover {
   text-align: left;
   font-size: .8em;
   font-weight: bold;
-  margin:0px 5px;
   color: whitesmoke;
 }
 .overlay-nav {
@@ -131,4 +117,9 @@ body a:hover {
 
 .istart {
   margin-left:5px;
+}
+
+.gallery {
+  /*height:400px;*/
+  margin-bottom: 25px;
 }

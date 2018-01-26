@@ -98,7 +98,7 @@ class PageController extends Controller {
   function viewPages() {
     $page = new Page();
     $pages = $page->allPages($this->story->id, 'post_date desc');
-    $this->assign('story', $pages);
+    $this->assign('pages', $pages);
     $this->display('viewPages.tpl');
   }
 
@@ -143,7 +143,7 @@ class PageController extends Controller {
       $story = new Story();
       $story->load(['id = ?', $this->formValues['story']]);
       // Upon save reroute to the new page.
-      $this->f3->reroute( '/' . $this->identifier . '/' . $this->formValues['pageNumber']);
+      $this->f3->reroute( '/' . $this->formValues['story'] . '/' . $this->formValues['pageNumber']);
     }
 
     // New renderer, one that renders the form as a smarty array
